@@ -1,0 +1,13 @@
+{
+	"manifest_version": 3,
+	"name": "Sheet music from video",
+	"description": "Want the sheet music for a piano roll video? Just run this extension!",
+	"version": "1.0",
+
+	"content_scripts": [
+		{
+			"matches": "*://*.youtube.com/watch",
+			"js": ["yt_to_sheet.js"]	
+		}
+	]
+}

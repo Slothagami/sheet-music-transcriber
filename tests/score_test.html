@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Score Test</title>
+        <script src="https://cdn.jsdelivr.net/npm/vexflow@4.0.3/build/cjs/vexflow.js"></script>
+        <script>
+            var vf, score, system, x = 0, y = 10
+            function init() {
+                var durations = {
+                    "w": 1,   "h": 1/2, 
+                    "q": 1/4, "8": 1/8
+                }
+                var midi_data = [
+                    { keys: ["C/4", "E/4"], duration: "w" },
+                    { keys: ["C/4", "E/4"], duration: "q" },
+                    { keys: ["D/4"], duration: "h" },
+                    { keys: [], duration: "8", type: "r" },
+                    { keys: ["F/4"], duration: "8" }
+                ]
+
+                // Convert the MIDI data to VexFlow notation
+                vf = new Vex.Flow.Factory({renderer: {elementId: 'music', width: 700, height: 500}})
+                score  = vf.EasyScore()
+                system = appendSystem(350)
+
+                let notes = []
+                let bar_sum = 0
+                let first_bar = true
+                for (let note of midi_data) {
+                    bar_sum += durations[note.duration]
+                    notes.push(new Vex.Flow.StaveNote(note))
+
+                    if (bar_sum == 1) {
+                        let stave = system.addStave({
+                            voices: [score.voice(notes)]
+                        }).setEndBarType(Vex.Flow.Barline.type.SINGLE)
+
+                        notes = []
+                        bar_sum = 0
+                        
+                        if (first_bar) {
+                            stave.addClef('treble').addTimeSignature('4/4')
+                            first_bar = false
+                        }
+                        
+                        stave.setEndBarType(Vex.Flow.Barline.type.SINGLE);
+                        system.addConnector('singleRight')
+                        system = appendSystem(500)
+                    }
+                }
+
+                vf.draw()
+            }
+
+            function appendSystem(width) {
+                system = vf.System({ x, y, width, spaceBetweenStaves: 10 })
+                x += width
+                return system
+            }
+
+            window.addEventListener("load", init)
+            
+        </script>
+        <style>
+            svg {
+                width: 100%;
+                height: 600px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="music"></div>
+    </body>
+</html>

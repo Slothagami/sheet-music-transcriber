@@ -39,13 +39,6 @@ const min_keywidth = keywidth / 2
 const fps          = 24
 //#endregion
 
-// TODO: 
-	// make sure the beginning notes are recorded
-	// analyze MIDI to indentify the note types (whole, quarter, eighth, etc.)
-	// Organise midi in terms of beats, not time (based on first note start time)
-	// Generate vexflow svg and open it in a new tab to be saved 
-		// include space for title, and live adjust settings to make it look better
-
 var window_y = 0
 let brightness_cutoff = .5
 let note_strength_cutoff = .7

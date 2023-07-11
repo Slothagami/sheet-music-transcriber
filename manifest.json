@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Sheet music from video",
-	"description": "Want the sheet music for a piano roll video? Just run this extension!",
+	"description": "Converts Piano roll videos into sheet music.",
 	"version": "1.0",
 
 	"content_scripts": [

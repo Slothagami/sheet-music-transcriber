@@ -2,9 +2,13 @@
 window.addEventListener("load", init)
 
 const { Renderer, Stave, Voice, StaveNote, Formatter } = Vex.Flow
-const margin   = 50
+const sizes = {
+    margin:         .1,
+    bar_margin:    .04,
+    stave_height:   .1,
+    font_size:     750,
+}
 const row_bars = 2
-const stave_height = 130
 const beats_per_bar = 4
 const durations  = {
     "w": 1,   "h": 1/2, 
@@ -27,15 +31,28 @@ const test_song  = [
     {keys: ["c/4","g/4"], duration: "q"},
 ]
 
-var div, renderer, context, bar_width, inner_width, width, height
+var div, renderer, context, bar_width, inner_width, 
+    width, height, margin, bar_margin, stave_height,
+    page, font_size
 function init() {
+    generate_sheet()
+    window.addEventListener("resize", generate_sheet)
+}
+
+function generate_sheet() {
+    div = document.getElementById("music")
+    div.innerHTML = ""
     setup_renderer()
+    page = {
+        stave_x: margin, 
+        stave_y: margin, 
+        bars_in_row: 0
+    }
     add_notes(test_song)
 }
 
 function setup_renderer() {
     // size constants
-
     // width and height fill remaing space defined by .settings width in the css
     let settings_width = document.styleSheets[0].cssRules.item(0).style.width // item 0 of the css rules
     let page_width     = (100 - parseInt(settings_width)) / 100 // remaing space as percentage
@@ -43,14 +60,21 @@ function setup_renderer() {
     width  = page_width * window.innerWidth
     height = width * Math.SQRT2
 
-    inner_width = width - 2 * margin
-    bar_width   = inner_width / row_bars
+    scale        = width / sizes.font_size
+    margin       = (width * sizes.margin) / scale
+    inner_width  = width - 2 * (margin * scale) // undo scale stretch before its applied again in bar_width
+    bar_width    = (inner_width / row_bars) / scale
+    bar_margin   = ((bar_width * scale) * sizes.bar_margin) / scale
+    stave_height = (height * sizes.stave_height) / scale
+
 
     // initialize objects
-    div      = document.getElementById("music")
     renderer = new Renderer(div, Renderer.Backends.SVG)
     renderer.resize(width, height)
     context  = renderer.getContext()
+
+    // keep the music size relative to the page constant
+    context.scale(scale, scale) 
 }
 
 function add_notes(notes) {
@@ -72,7 +96,7 @@ function add_notes(notes) {
 
             // render voice
             voice.addTickables(voice_notes)
-            formatter.joinVoices([voice]).format([voice], bar_width)
+            formatter.joinVoices([voice]).format([voice], bar_width - bar_margin)
             voice.draw(context, stave)
 
             // reset
@@ -82,12 +106,6 @@ function add_notes(notes) {
             beats = 0
         }
     })
-}
-
-var page = {
-    stave_x: margin, 
-    stave_y: margin, 
-    bars_in_row: 0
 }
 function new_stave() {
     // make a new stave in the correct position

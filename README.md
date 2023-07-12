@@ -5,5 +5,9 @@
     - make sure the beginning notes are recorded
     - analyze MIDI to indentify the note types (whole, quarter, eighth, etc.)
     - Organise midi in terms of beats, not time (based on first note start time)
-    - Generate vexflow svg and open it in a new tab to be saved 
-		- include space for title, and live adjust settings to make it look better
+		
+    - generate sheet music
+      - include space for title
+      - live adjustable settings to make it look better
+      - download button (svg or pdf option)
+        - convert to pdf

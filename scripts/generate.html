@@ -11,8 +11,8 @@
         <style>
             /* .settings must be first to acesss it with js using css index 0 */
             .settings {
-                width: 40%;
-                padding: 2em;
+                width: 30%;
+                padding: 4em;
             }
 
             svg {
@@ -30,8 +30,8 @@
             }
 
             h4 {
-                margin: 1em auto;
-                margin-top: 2em;
+                margin: .7em auto;
+                margin-top: 2.5em;
             }
 
             input[type=range] {
@@ -42,11 +42,27 @@
     <body>
         <div id="music"></div>
         <div class="settings">
-            <h4>Margin</h4>
-            <input type="range" name="margin" id="margin" min="0" max=".3" step=".005" value=".1">
+
+            <!-- 
+                beats_per_bar:   4 
+            -->
+            <h4 style="margin-top: 0;">Margin</h4>
+            <input type="range" id="margin" min="0" max=".3" step=".005" value=".1">
             
             <h4>Size</h4>
-            <input type="range" name="size" id="size" min="100" max="1500" step="1" value="750">
+            <input type="range" id="size" min="400" max="1500" step="1" value="750">
+            
+            <h4>Bar Margin</h4>
+            <input type="range" id="bmargin" min="0" max=".5" step=".01" value=".04">
+            
+            <h4>Stave Height</h4>
+            <input type="range" id="stave_height" min=".03" max=".2" step=".01" value=".1">
+            
+            <h4>Bars Per Row</h4>
+            <input type="range" id="bars" min="1" max="8" step="1" value="2">
+            
+            <h4>Clef Width</h4>
+            <input type="range" id="clef_width" min=".05" max=".5" step=".01" value="2">
         </div>
     </body>
 </html>

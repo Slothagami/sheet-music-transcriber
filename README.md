@@ -10,5 +10,6 @@
         - title on first page
         - page numbers
       - live adjustable settings to make it look better
+        - move functions into ScoreGenerator class
       - download button (svg or pdf option)
         - convert to pdf

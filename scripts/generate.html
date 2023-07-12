@@ -42,27 +42,23 @@
     <body>
         <div id="music"></div>
         <div class="settings">
-
-            <!-- 
-                beats_per_bar:   4 
-            -->
-            <h4 style="margin-top: 0;">Margin</h4>
+            <h4 style="margin-top: 0;">Title Space</h4>
+            <input type="range" id="title_space" min="0" max=".4" step=".005" value="0">
+            
+            <h4>Margin</h4>
             <input type="range" id="margin" min="0" max=".3" step=".005" value=".1">
             
             <h4>Size</h4>
-            <input type="range" id="size" min="400" max="1500" step="1" value="750">
+            <input type="range" id="font_size" min="400" max="1500" step="1" value="750">
             
             <h4>Bar Margin</h4>
-            <input type="range" id="bmargin" min="0" max=".5" step=".01" value=".04">
+            <input type="range" id="bar_margin" min="0" max=".5" step=".01" value=".04">
             
             <h4>Stave Height</h4>
             <input type="range" id="stave_height" min=".03" max=".2" step=".01" value=".1">
             
             <h4>Bars Per Row</h4>
-            <input type="range" id="bars" min="1" max="8" step="1" value="2">
-            
-            <h4>Clef Width</h4>
-            <input type="range" id="clef_width" min=".05" max=".5" step=".01" value="2">
+            <input type="range" id="row_bars" min="1" max="8" step="1" value="2">
         </div>
     </body>
 </html>

@@ -1,4 +1,4 @@
-const { Renderer, Stave, Voice, StaveNote, Formatter } = Vex.Flow
+const { Renderer, Stave, Voice, StaveNote, Formatter, Clef, TimeSignature, TextNote } = Vex.Flow
 const durations  = {
     "w": 1,   "h": 1/2, 
     "q": 1/4, "8": 1/8
@@ -14,8 +14,7 @@ class ScoreGenerator {
             font_size:     750,
             row_bars:        2,
             beats_per_bar:   4,
-
-            clef_width: .25,
+            title_space:     0
         }
         this.generate()
         window.addEventListener("resize", () => {this.generate()})
@@ -27,7 +26,7 @@ class ScoreGenerator {
         this.setup_renderer()
         this.page = {
             stave_x: this.margin, 
-            stave_y: this.margin, 
+            stave_y: this.margin + this.title_space, 
             bars_in_row: 0
         }
         this.add_notes(this.score)
@@ -48,6 +47,7 @@ class ScoreGenerator {
         this.bar_width    = (this.inner_width / this.settings.row_bars) / this.scale
         this.bar_margin   = ((this.bar_width * this.scale) * this.settings.bar_margin) / this.scale
         this.stave_height = (this.height * this.settings.stave_height) / this.scale
+        this.title_space  = (this.settings.title_space * this.height) / this.scale
     
     
         // initialize objects
@@ -88,6 +88,20 @@ class ScoreGenerator {
                 beats = 0
             }
         })
+
+        // // Add title 
+        // if(this.settings.title_space > .05) {
+        //     var svgNS = "http://www.w3.org/2000/svg";
+        //     var newText = document.createElementNS(svgNS,"text")
+        //     newText.setAttributeNS(null, "x", this.margin + this.inner_width/2)  
+        //     newText.setAttributeNS(null, "y", this.margin + this.title_space/2)
+        //     newText.setAttributeNS(null, "font-size", 50)
+        //     newText.setAttributeNS(null, "font-family", "serif")
+    
+        //     var textNode = document.createTextNode("Title")
+        //     newText.appendChild(textNode);
+        //     document.querySelector("svg").appendChild(newText);
+        // }
     }
 
     new_stave() {
@@ -98,7 +112,9 @@ class ScoreGenerator {
         if(this.page.bars_in_row == 0) {
             // add clefs for first bar in a row
             stave.addClef("treble").addTimeSignature("4/4")
-            this.stave_offset = this.settings.clef_width * this.bar_width
+            // this.stave_offset = this.settings.clef_width * this.scale
+            this.stave_offset = new Clef("treble").fontSizeInPixels + new TimeSignature("4/4").fontSizeInPixels
+            this.stave_offset *= this.scale
         }
     
         this.page.stave_x += this.bar_width

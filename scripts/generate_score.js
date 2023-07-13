@@ -5,21 +5,22 @@ const durations  = {
 }
 
 class ScoreGenerator {
-    constructor(score, title="Title", subtitle="subtitle") {
+    constructor(score) {
         this.score = score
         this.settings = {
-            title:          title,
-            subtitle:    subtitle,
-            margin:            .1,
-            stave_height:      .2,
-            stave_width:       .1,
-            font_size:        750,
-            row_bars:           3,
-            beats_per_bar:      4,
-            title_space:     .055,
-            min_title_space: .001,
-            title_size:      .035,
-            stave_gap:         .1,
+            title:       score.title,
+            subtitle: score.subtitle,
+            artist:     score.artist,
+            margin:               .1,
+            stave_height:         .2,
+            stave_width:          .1,
+            font_size:           750,
+            row_bars:              3,
+            beats_per_bar:         4,
+            title_space:        .055,
+            min_title_space:    .001,
+            title_size:         .035,
+            stave_gap:            .1,
         }
         this.generate()
         window.addEventListener("resize", () => {this.generate()})
@@ -62,16 +63,35 @@ class ScoreGenerator {
             let center_y = this.margin + this.title_space/2
             this.text_element(this.settings.title,    svg, "50%", center_y, this.title_size)
             this.text_element(this.settings.subtitle, svg, "50%", center_y + this.title_size, this.title_size/2)
+            
+            // corner text
+            let lines = this.settings.artist.split("\n")
+            let line_height = this.title_size/2 + 3
+            let voffset = line_height * lines.length
+            for(let i = 0; i < lines.length; i++) {
+                this.text_element(
+                    lines[i], svg, 
+                    (1 - this.settings.margin) * 100 + "%", 
+                    this.margin*1.7 + this.title_space + this.title_size - voffset + line_height*i, 
+                    this.title_size/2, 
+                    true
+                )
+            }
         }
     }
-    text_element(text, svg, x, y, size) {
+    text_element(text, svg, x, y, size, iscorner=false) {
         var svg_ns = "http://www.w3.org/2000/svg";
         var new_text = document.createElementNS(svg_ns, "text")
 
         new_text.setAttributeNS(null, "x", x)  
         new_text.setAttributeNS(null, "y", y)
         new_text.setAttributeNS(null, "font-size", size)
-        new_text.setAttributeNS(null, "text-anchor", "middle")
+        
+        if(iscorner) {
+            new_text.setAttributeNS(null, "text-anchor", "end")
+        } else {
+            new_text.setAttributeNS(null, "text-anchor", "middle")
+        }
 
         var text_node = document.createTextNode(text)
         new_text.appendChild(text_node)

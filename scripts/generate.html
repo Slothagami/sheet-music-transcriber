@@ -39,15 +39,18 @@
                 width: 60%;
             }
 
-            input[type=text], input[type=number], a {
+            input[type=text], input[type=number], a, textarea {
                 background-color: black;
                 border: none;
                 outline: none;
                 padding: .5em;
                 margin: .3em 0;
+                resize: none;
+            }
+            input[type=text], input[type=number], a {
                 height: 1.6em;
             }
-            input[type=text], a {
+            input[type=text], a, textarea {
                 width: calc(100% - 1em);
             }
             a {
@@ -86,6 +89,7 @@
         <div class="settings">
             <input type="text" id="title" placeholder="title" style="margin-top: 0;">
             <input type="text" id="subtitle" placeholder="subtitle">
+            <textarea rows="3" id="artist" placeholder="artists"></textarea>
 
             <div class="row">
                 <p>Bars per row</p>
@@ -94,31 +98,31 @@
 
             <div class="row section">
                 <p>Title Space</p>
-                <input type="range" id="title_space" min="0" max=".4" step=".005" value=".1">
+                <input type="range" id="title_space" min="0" max=".4" step=".005">
             </div>
             
             <div class="row">
                 <p>Title Size</p>
-                <input type="range" id="title_size" min=".01" max=".1" step=".001" value=".1">
+                <input type="range" id="title_size" min=".01" max=".1" step=".001">
             </div>
             
             <div class="row">
                 <p>Margin</p>
-                <input type="range" id="margin" min="0" max=".3" step=".005" value=".1">
+                <input type="range" id="margin" min="0" max=".3" step=".005">
             </div>
             
             <div class="row">
                 <p>Size</p>
-                <input type="range" id="font_size" min="750" max="1500" step="1" value="750">
+                <input type="range" id="font_size" min="750" max="1500" step="1">
             </div>
             
             <div class="row">
                 <p>Stave Seperation</p>
-                <input type="range" id="stave_height" min=".15" max=".3" step=".01" value=".1">
+                <input type="range" id="stave_height" min=".15" max=".3" step=".01">
             </div>
             <div class="row">
                 <p>Stave Gap</p>
-                <input type="range" id="stave_gap" min=".06" max=".15" step=".005" value=".1">
+                <input type="range" id="stave_gap" min=".06" max=".15" step=".005">
             </div>
 
             <p class="section center">Download</p>

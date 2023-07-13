@@ -1,6 +1,11 @@
 window.addEventListener("load", init)
 
 const score = {
+    title:    "BRAND NEW WORLD",
+    subtitle: "One Piece",
+    artist:   "Symphoniac\nMagical Piano\nBlake Woolley",
+    bpm:      148,
+
     treble: [
         {keys: ["c/4"], duration: "q"},
         {keys: ["d/4"], duration: "q"},
@@ -37,7 +42,7 @@ const score = {
 
 var margin, size, generator, elem = {}
 function init() {
-    generator = new ScoreGenerator(score, "BRAND NEW WORLD", "One Piece")
+    generator = new ScoreGenerator(score)
     
     for(let param in generator.settings) {
         let el = document.getElementById(param)

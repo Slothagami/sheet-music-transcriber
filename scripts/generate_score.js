@@ -12,15 +12,15 @@ class ScoreGenerator {
             subtitle: score.subtitle,
             artist:     score.artist,
             margin:               .1,
-            stave_height:         .2,
+            stave_height:        .15,
             stave_width:          .1,
-            font_size:           750,
+            font_size:           925,
             row_bars:              3,
             beats_per_bar:         4,
             title_space:        .055,
             min_title_space:    .001,
             title_size:         .035,
-            stave_gap:            .1,
+            stave_gap:           .07,
         }
         this.generate()
         window.addEventListener("resize", () => {this.generate()})

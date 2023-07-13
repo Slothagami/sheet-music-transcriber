@@ -11,7 +11,7 @@ class ScoreGenerator {
             title:          title,
             subtitle:    subtitle,
             margin:            .1,
-            stave_height:      .1,
+            stave_height:      .2,
             stave_width:       .1,
             font_size:        750,
             row_bars:           3,
@@ -19,6 +19,7 @@ class ScoreGenerator {
             title_space:     .055,
             min_title_space: .001,
             title_size:      .035,
+            stave_gap:         .1,
         }
         this.generate()
         window.addEventListener("resize", () => {this.generate()})
@@ -89,6 +90,7 @@ class ScoreGenerator {
         this.inner_width  = this.width - 2 * (this.margin * this.scale) // undo scale stretch before its applied again in bar_width
         this.bar_width    = (this.inner_width / this.settings.row_bars) / this.scale
         this.stave_height = (this.height * this.settings.stave_height) / this.scale
+        this.stave_gap    = (this.height * this.settings.stave_gap) / this.scale
         this.stave_width  = (this.width * this.settings.stave_width) / this.scale
         this.title_space  = (this.settings.title_space * this.height) / this.scale
         this.title_size   = (this.settings.title_size * this.height) / this.scale
@@ -104,43 +106,50 @@ class ScoreGenerator {
 
     add_notes(notes) {
         let voice_args = {num_beats: this.settings.beats_per_bar, beat_value: 4}
-        let stave = this.new_stave()
+        let bar = this.new_bar()
         let voice = new Voice(voice_args)
         let voice_notes = []
         let formatter = new Formatter()
     
         let beats  = 0
-        notes.forEach(note => {
+        notes.treble.forEach(note => {
             beats += durations[note.duration.replace("r", "")]
             voice_notes.push(
                 new StaveNote(note)
             )
             if(beats >= 1) {
-                // render stave
-                stave.setContext(this.context).draw()
+                this.draw_bar(bar)
     
                 // render voice
                 voice.addTickables(voice_notes)
                 formatter.joinVoices([voice]).format([voice], this.bar_width - this.stave_offset)
-                voice.draw(this.context, stave)
+                voice.draw(this.context, bar.treble)
     
                 // reset
-                stave = this.new_stave()
-                voice = new Voice(voice_args)
+                bar         = this.new_bar()
+                voice       = new Voice(voice_args)
                 voice_notes = []
-                beats = 0
+                beats       = 0
             }
         })
     }
 
-    new_stave() {
+    new_bar() {
         // make a new stave in the correct position
-        let stave = new Stave(this.page.stave_x, this.page.stave_y, this.bar_width)
+        let stave      = new Stave(this.page.stave_x, this.page.stave_y, this.bar_width)
+        let bass_stave = new Stave(this.page.stave_x, this.page.stave_y + this.stave_gap, this.bar_width)
         
+        // connect the staves
+        let line_right = new Vex.Flow.StaveConnector(stave, bass_stave).setType(0)
+        let line_left  = new Vex.Flow.StaveConnector(stave, bass_stave).setType(1)
+        let brace      = null
+
         this.stave_offset = 0
         if(this.page.bars_in_row == 0) {
-            // add clefs for first bar in a row
+            // add decorations to start the row
             stave.addClef("treble").addTimeSignature("4/4")
+            bass_stave.addClef("bass").addTimeSignature("4/4")
+            brace = new Vex.Flow.StaveConnector(stave, bass_stave).setType(3)
             this.stave_offset = this.stave_width
         }
     
@@ -153,7 +162,20 @@ class ScoreGenerator {
             this.page.stave_x = this.margin
             this.page.bars_in_row = 0
         }
-    
-        return stave
+
+        return {
+            treble: stave, 
+            bass: bass_stave, 
+            line_left, line_right,
+            brace
+        }
+    }
+
+    draw_bar(bar) {
+        for(let elt in bar) {
+            if(bar[elt]) {
+                bar[elt].setContext(this.context).draw()
+            }
+        }
     }
 }

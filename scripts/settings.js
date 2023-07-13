@@ -1,21 +1,39 @@
 window.addEventListener("load", init)
 
-const score = [
-    {keys: ["c/4"], duration: "q"},
-    {keys: ["d/4"], duration: "q"},
-    {keys: ["b/4"], duration: "qr"},
-    {keys: ["c/4","e/4","g/4"], duration: "q"},
+const score = {
+    treble: [
+        {keys: ["c/4"], duration: "q"},
+        {keys: ["d/4"], duration: "q"},
+        {keys: ["b/4"], duration: "qr"},
+        {keys: ["c/4","e/4","g/4"], duration: "q"},
 
-    {keys: ["c/4","g/4"], duration: "q"},
-    {keys: ["d/4"], duration: "q"},
-    {keys: ["b/4"], duration: "qr"},
-    {keys: ["c/4","e/4","g/4"], duration: "q"},
+        {keys: ["c/4","g/4"], duration: "q"},
+        {keys: ["d/4"], duration: "q"},
+        {keys: ["b/4"], duration: "qr"},
+        {keys: ["c/4","e/4","g/4"], duration: "q"},
 
-    {keys: ["c/4","e/4","g/4"], duration: "q"},
-    {keys: ["b/4"], duration: "qr"},
-    {keys: ["d/4"], duration: "q"},
-    {keys: ["c/4","g/4"], duration: "q"},
-]
+        {keys: ["c/4","e/4","g/4"], duration: "q"},
+        {keys: ["b/4"], duration: "qr"},
+        {keys: ["d/4"], duration: "q"},
+        {keys: ["c/4","g/4"], duration: "q"},
+    ],
+    bass: [
+        {keys: ["c/2"], duration: "q"},
+        {keys: ["d/2"], duration: "q"},
+        {keys: ["b/2"], duration: "qr"},
+        {keys: ["c/2","e/2","g/2"], duration: "q"},
+
+        {keys: ["c/2","g/2"], duration: "q"},
+        {keys: ["d/2"], duration: "q"},
+        {keys: ["b/2"], duration: "qr"},
+        {keys: ["c/2","e/2","g/2"], duration: "q"},
+
+        {keys: ["c/2","e/2","g/2"], duration: "q"},
+        {keys: ["b/2"], duration: "qr"},
+        {keys: ["d/2"], duration: "q"},
+        {keys: ["c/2","g/2"], duration: "q"},
+    ]
+}
 
 var margin, size, generator, elem = {}
 function init() {

@@ -34,7 +34,7 @@ function init() {
 
 function update_params() {
     for(let param in elem) {
-        generator.settings[param] = parseFloat(elem[param].value)
+        generator.settings[param] = (elem[param].value)
     }
     
     generator.generate()

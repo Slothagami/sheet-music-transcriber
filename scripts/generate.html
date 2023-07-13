@@ -12,7 +12,7 @@
             /* .settings must be first to acesss it with js using css index 0 */
             .settings {
                 width: 30%;
-                padding: 4em;
+                padding: 3em;
             }
 
             svg {
@@ -21,6 +21,7 @@
 
             body {
                 background-color: #202020;
+                /* overflow-x: hidden; */
                 display: flex;
                 gap: 8px;
             }
@@ -35,30 +36,93 @@
             }
 
             input[type=range] {
+                width: 60%;
+            }
+
+            input[type=text], input[type=number], a {
+                background-color: black;
+                border: none;
+                outline: none;
+                padding: .5em;
+                margin: .3em 0;
+                height: 1.6em;
+            }
+            input[type=text], a {
+                width: calc(100% - 1em);
+            }
+            a {
+                display: block;
+                text-align: center;
+                text-decoration: none;
+            }
+            a:hover {
+                background-color: #303030;
+            }
+
+            p {
+                margin: .6em 0;
+            }
+
+            .row {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
                 width: 100%;
+                gap: .4em;
+            }
+
+            .section {
+                margin-top: 3em;
             }
         </style>
     </head>
     <body>
         <div id="music"></div>
         <div class="settings">
-            <h4 style="margin-top: 0;">Title Space</h4>
-            <input type="range" id="title_space" min="0" max=".4" step=".005" value="0">
+            <input type="text" id="title" placeholder="title" style="margin-top: 0;">
+            <input type="text" id="subtitle" placeholder="subtitle">
+
+            <div class="row">
+                <p>Bars per row</p>
+                <input type="number" id="row_bars" min="1" max="8" step="1">
+            </div>
+
+            <div class="row section">
+                <p>Title Space</p>
+                <input type="range" id="title_space" min="0" max=".4" step=".005" value=".1">
+            </div>
             
-            <h4>Margin</h4>
-            <input type="range" id="margin" min="0" max=".3" step=".005" value=".1">
+            <div class="row">
+                <p>Title Size</p>
+                <input type="range" id="title_size" min=".01" max=".1" step=".001" value=".1">
+            </div>
             
-            <h4>Size</h4>
-            <input type="range" id="font_size" min="400" max="1500" step="1" value="750">
+            <div class="row">
+                <p>Margin</p>
+                <input type="range" id="margin" min="0" max=".3" step=".005" value=".1">
+            </div>
             
-            <h4>Bar Margin</h4>
-            <input type="range" id="bar_margin" min="0" max=".5" step=".01" value=".04">
+            <div class="row">
+                <p>Size</p>
+                <input type="range" id="font_size" min="400" max="1500" step="1" value="750">
+            </div>
             
-            <h4>Stave Height</h4>
-            <input type="range" id="stave_height" min=".03" max=".2" step=".01" value=".1">
+            <div class="row">
+                <p>Bar Margin</p>
+                <input type="range" id="bar_margin" min="0" max=".5" step=".01" value=".04">
+            </div>
             
-            <h4>Bars Per Row</h4>
-            <input type="range" id="row_bars" min="1" max="8" step="1" value="2">
+            <div class="row">
+                <p>Stave Height</p>
+                <input type="range" id="stave_height" min=".03" max=".2" step=".01" value=".1">
+            </div>
+
+            <div class="row section">
+                <p>download</p>
+                <a href="#">pdf</a>
+                <a href="#">svg</a>
+            </div>
         </div>
     </body>
 </html>

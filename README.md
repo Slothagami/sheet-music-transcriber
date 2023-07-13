@@ -11,3 +11,5 @@
         - page numbers
       - download button (svg or pdf option)
         - convert to pdf
+      - add bass clef staves
+      - fix spacing of first bar in a row (get size of clefs)

@@ -5,16 +5,20 @@ const durations  = {
 }
 
 class ScoreGenerator {
-    constructor(score) {
+    constructor(score, title="Title", subtitle="subtitle") {
         this.score = score
         this.settings = {
+            title:       title,
+            subtitle: subtitle,
             margin:         .1,
             bar_margin:    .00,
             stave_height:   .1,
             font_size:     750,
             row_bars:        2,
             beats_per_bar:   4,
-            title_space:     0
+            title_space:    .1,
+            min_title_space: .01,
+            title_size: .05,
         }
         this.generate()
         window.addEventListener("resize", () => {this.generate()})
@@ -24,12 +28,45 @@ class ScoreGenerator {
         this.div = document.getElementById("music")
         this.div.innerHTML = ""
         this.setup_renderer()
+
+        let title_visible = this.settings.title_space > this.settings.min_title_space
+        let title_margin = title_visible? this.margin * .5: 0
         this.page = {
             stave_x: this.margin, 
-            stave_y: this.margin + this.title_space, 
+            stave_y: this.margin + this.title_space + title_margin, 
             bars_in_row: 0
         }
         this.add_notes(this.score)
+        this.add_text(this.title)
+    }
+
+    add_text() {
+        let svg = document.querySelector("svg")
+        if(this.settings.title_space > this.settings.min_title_space) {
+            // add style
+            let style = document.createElement("style")
+                style.innerText = "text {font-family: serif}"
+
+            svg.appendChild(style)
+
+            // Add title 
+            let center_y = this.margin + this.title_space/2
+            this.text_element(this.settings.title,    svg, "50%", center_y, this.title_size)
+            this.text_element(this.settings.subtitle, svg, "50%", center_y + this.title_size, this.title_size/2)
+        }
+    }
+    text_element(text, svg, x, y, size) {
+        var svg_ns = "http://www.w3.org/2000/svg";
+        var new_text = document.createElementNS(svg_ns, "text")
+
+        new_text.setAttributeNS(null, "x", x)  
+        new_text.setAttributeNS(null, "y", y)
+        new_text.setAttributeNS(null, "font-size", size)
+        new_text.setAttributeNS(null, "text-anchor", "middle")
+
+        var text_node = document.createTextNode(text)
+        new_text.appendChild(text_node)
+        svg.appendChild(new_text)
     }
 
     setup_renderer() {
@@ -48,7 +85,7 @@ class ScoreGenerator {
         this.bar_margin   = ((this.bar_width * this.scale) * this.settings.bar_margin) / this.scale
         this.stave_height = (this.height * this.settings.stave_height) / this.scale
         this.title_space  = (this.settings.title_space * this.height) / this.scale
-    
+        this.title_size   = (this.settings.title_size * this.height) / this.scale
     
         // initialize objects
         this.renderer = new Renderer(this.div, Renderer.Backends.SVG)
@@ -88,20 +125,6 @@ class ScoreGenerator {
                 beats = 0
             }
         })
-
-        // // Add title 
-        // if(this.settings.title_space > .05) {
-        //     var svgNS = "http://www.w3.org/2000/svg";
-        //     var newText = document.createElementNS(svgNS,"text")
-        //     newText.setAttributeNS(null, "x", this.margin + this.inner_width/2)  
-        //     newText.setAttributeNS(null, "y", this.margin + this.title_space/2)
-        //     newText.setAttributeNS(null, "font-size", 50)
-        //     newText.setAttributeNS(null, "font-family", "serif")
-    
-        //     var textNode = document.createTextNode("Title")
-        //     newText.appendChild(textNode);
-        //     document.querySelector("svg").appendChild(newText);
-        // }
     }
 
     new_stave() {

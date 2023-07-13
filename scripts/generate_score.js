@@ -8,29 +8,34 @@ class ScoreGenerator {
     constructor(score, title="Title", subtitle="subtitle") {
         this.score = score
         this.settings = {
-            title:       title,
-            subtitle: subtitle,
-            margin:         .1,
-            bar_margin:    .00,
-            stave_height:   .1,
-            font_size:     750,
-            row_bars:        2,
-            beats_per_bar:   4,
-            title_space:    .1,
-            min_title_space: .01,
-            title_size: .05,
+            title:          title,
+            subtitle:    subtitle,
+            margin:            .1,
+            stave_height:      .1,
+            stave_width:       .1,
+            font_size:        750,
+            row_bars:           3,
+            beats_per_bar:      4,
+            title_space:     .055,
+            min_title_space: .001,
+            title_size:      .035,
         }
         this.generate()
         window.addEventListener("resize", () => {this.generate()})
     }
 
     generate() {
+        // scroll position is reset when deleting the existing sheet music from the page
+        let scrollX = window.pageXOffset || document.documentElement.scrollLeft
+        let scrollY = window.pageYOffset || document.documentElement.scrollTop
+
         this.div = document.getElementById("music")
         this.div.innerHTML = ""
+
         this.setup_renderer()
 
-        let title_visible = this.settings.title_space > this.settings.min_title_space
-        let title_margin = title_visible? this.margin * .5: 0
+        let title_visible = this.settings.title_space >= this.settings.min_title_space
+        let title_margin = title_visible? this.margin * .75: 0
         this.page = {
             stave_x: this.margin, 
             stave_y: this.margin + this.title_space + title_margin, 
@@ -38,11 +43,14 @@ class ScoreGenerator {
         }
         this.add_notes(this.score)
         this.add_text(this.title)
+
+        // return to previous scroll position
+        window.scrollTo(scrollX, scrollY)
     }
 
     add_text() {
         let svg = document.querySelector("svg")
-        if(this.settings.title_space > this.settings.min_title_space) {
+        if(this.settings.title_space >= this.settings.min_title_space) {
             // add style
             let style = document.createElement("style")
                 style.innerText = "text {font-family: serif}"
@@ -71,19 +79,17 @@ class ScoreGenerator {
 
     setup_renderer() {
         // size constants
-        // width and height fill remaing space defined by .settings width in the css
-        let settings_width = document.styleSheets[0].cssRules.item(0).style.width // item 0 of the css rules
-        let page_width     = (100 - parseInt(settings_width)) / 100 // remaing space as percentage
-    
-        this.width  = page_width * window.innerWidth
+        let settings_width = document.querySelector(".settings").offsetWidth
+
+        this.width  = window.innerWidth - settings_width
         this.height = this.width * Math.SQRT2
     
         this.scale        = this.width / this.settings.font_size
         this.margin       = (this.width * this.settings.margin) / this.scale
         this.inner_width  = this.width - 2 * (this.margin * this.scale) // undo scale stretch before its applied again in bar_width
         this.bar_width    = (this.inner_width / this.settings.row_bars) / this.scale
-        this.bar_margin   = ((this.bar_width * this.scale) * this.settings.bar_margin) / this.scale
         this.stave_height = (this.height * this.settings.stave_height) / this.scale
+        this.stave_width  = (this.width * this.settings.stave_width) / this.scale
         this.title_space  = (this.settings.title_space * this.height) / this.scale
         this.title_size   = (this.settings.title_size * this.height) / this.scale
     
@@ -115,7 +121,7 @@ class ScoreGenerator {
     
                 // render voice
                 voice.addTickables(voice_notes)
-                formatter.joinVoices([voice]).format([voice], this.bar_width - this.bar_margin - this.stave_offset)
+                formatter.joinVoices([voice]).format([voice], this.bar_width - this.stave_offset)
                 voice.draw(this.context, stave)
     
                 // reset
@@ -135,9 +141,7 @@ class ScoreGenerator {
         if(this.page.bars_in_row == 0) {
             // add clefs for first bar in a row
             stave.addClef("treble").addTimeSignature("4/4")
-            // this.stave_offset = this.settings.clef_width * this.scale
-            this.stave_offset = new Clef("treble").fontSizeInPixels + new TimeSignature("4/4").fontSizeInPixels
-            this.stave_offset *= this.scale
+            this.stave_offset = this.stave_width
         }
     
         this.page.stave_x += this.bar_width

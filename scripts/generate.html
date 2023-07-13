@@ -9,10 +9,10 @@
         <script src="generate_score.js"></script>
         <script src="settings.js"></script>
         <style>
-            /* .settings must be first to acesss it with js using css index 0 */
             .settings {
                 width: 30%;
                 padding: 3em;
+                /* height: 200vh; */
             }
 
             svg {
@@ -75,6 +75,10 @@
             .section {
                 margin-top: 3em;
             }
+
+            .center {
+                text-align: center;
+            }
         </style>
     </head>
     <body>
@@ -105,21 +109,16 @@
             
             <div class="row">
                 <p>Size</p>
-                <input type="range" id="font_size" min="400" max="1500" step="1" value="750">
+                <input type="range" id="font_size" min="750" max="1500" step="1" value="750">
             </div>
             
             <div class="row">
-                <p>Bar Margin</p>
-                <input type="range" id="bar_margin" min="0" max=".5" step=".01" value=".04">
-            </div>
-            
-            <div class="row">
-                <p>Stave Height</p>
+                <p>Stave Seperation</p>
                 <input type="range" id="stave_height" min=".03" max=".2" step=".01" value=".1">
             </div>
 
-            <div class="row section">
-                <p>download</p>
+            <p class="section center">Download</p>
+            <div class="row">
                 <a href="#">pdf</a>
                 <a href="#">svg</a>
             </div>

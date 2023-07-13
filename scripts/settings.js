@@ -19,7 +19,7 @@ const score = [
 
 var margin, size, generator, elem = {}
 function init() {
-    generator = new ScoreGenerator(score)
+    generator = new ScoreGenerator(score, "BRAND NEW WORLD", "One Piece")
     
     for(let param in generator.settings) {
         let el = document.getElementById(param)
@@ -34,7 +34,7 @@ function init() {
 
 function update_params() {
     for(let param in elem) {
-        generator.settings[param] = (elem[param].value)
+        generator.settings[param] = elem[param].value
     }
     
     generator.generate()

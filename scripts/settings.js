@@ -41,7 +41,10 @@ const score = {
         {keys: ["e/5"], duration: "8"},
     ],
     bass: [
-        {keys: ["e/2","e/3"], duration: "8"},
+        {keys: ["e/4","e/5"], duration: "w"},
+        {keys: ["e/4","e/5"], duration: "w"},
+        {keys: ["e/4","e/5"], duration: "w"},
+        {keys: ["e/4","e/5"], duration: "w"},
         
     ]
 }

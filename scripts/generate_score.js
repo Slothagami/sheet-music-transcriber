@@ -43,8 +43,8 @@ class ScoreGenerator {
             stave_y: this.margin + this.title_space + title_margin, 
             bars_in_row: 0
         }
-        this.add_notes(this.score)
-        this.add_text(this.title)
+        this.add_notes()
+        this.add_text()
 
         // return to previous scroll position
         window.scrollTo(scrollX, scrollY)
@@ -124,34 +124,54 @@ class ScoreGenerator {
         this.context.scale(this.scale, this.scale) 
     }
 
-    add_notes(notes) {
+    add_notes() {
+        let score = this.score
         let voice_args = {num_beats: this.settings.beats_per_bar, beat_value: 4}
         let bar = this.new_bar()
-        let voice = new Voice(voice_args)
-        let voice_notes = []
+        let treble_voice = new Voice(voice_args)
+        let bass_voice   = new Voice(voice_args)
+        let treble_notes, bass_notes
         let formatter = new Formatter()
-    
-        let beats  = 0
-        notes.treble.forEach(note => {
+
+        let treble_ind = 0
+        let bass_ind   = 0
+        while(true) {
+            if(treble_ind >= score.treble.length) break
+            
+            // get this bar's set of notes
+            let treble   = this.next_bar_notes(score.treble, treble_ind)
+            treble_ind   = treble.index
+            treble_notes = treble.notes
+
+            let bass   = this.next_bar_notes(score.bass, bass_ind)
+            bass_ind   = bass.index
+            bass_notes = bass.notes
+
+            // render voice
+            this.draw_bar(bar)
+            this.draw_voice(treble_voice, treble_notes, bar.treble, formatter)
+            this.draw_voice(bass_voice,   bass_notes,   bar.bass,   formatter)
+
+            // reset for next bar
+            bar          = this.new_bar()
+            treble_voice = new Voice(voice_args)
+            bass_voice   = new Voice(voice_args)
+        }
+    }
+
+    next_bar_notes(voice, index) {
+        let note, beats = 0, notes = []
+
+        // loop until the beats in a bar is filled
+        while(beats < 1) {
+            note = voice[index]
             beats += durations[note.duration.replace("r", "")]
-            voice_notes.push(
+            notes.push(
                 new StaveNote(note)
             )
-            if(beats >= 1) {
-                this.draw_bar(bar)
-    
-                // render voice
-                voice.addTickables(voice_notes)
-                formatter.joinVoices([voice]).format([voice], this.bar_width - this.stave_offset)
-                voice.draw(this.context, bar.treble)
-    
-                // reset
-                bar         = this.new_bar()
-                voice       = new Voice(voice_args)
-                voice_notes = []
-                beats       = 0
-            }
-        })
+            index++
+        }
+        return { index, notes }
     }
 
     new_bar() {
@@ -197,5 +217,11 @@ class ScoreGenerator {
                 bar[elt].setContext(this.context).draw()
             }
         }
+    }
+
+    draw_voice(voice, notes, stave, formatter) {
+        voice.addTickables(notes)
+        formatter.joinVoices([voice]).format([voice], this.bar_width - this.stave_offset)
+        voice.draw(this.context, stave)
     }
 }

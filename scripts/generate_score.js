@@ -176,15 +176,16 @@ class ScoreGenerator {
     decorate_bar(notes) {
         // adds ties, beams and other symbols
         // converts MIDI notes into VexFlow notation format
+        let elements = [] // elements that need seperate rendering
 
         let vex_notes = []
         notes.forEach(note => {
+            // note.stem_direction = Vex.Flow.Stem.DOWN
             vex_notes.push(new StaveNote(note))
         })
 
         // add contextual ties (split 1/4 note into 2 tied 8th notes if sourrdounded by 8th notes)
         let context_ties = []
-        let ties = []
         for(let i = 0; i < vex_notes.length; i++) {
             let note = vex_notes[i]
 
@@ -214,13 +215,15 @@ class ScoreGenerator {
 
                 context_ties.push(start, end)
                 let tie_scale = this.settings.tie_scale
-                ties.push(new Vex.Flow.StaveTie({
+
+                elements.push(new Vex.Flow.StaveTie({
                     first_note: start,
                     last_note: end,
                     first_indices: [0],
                     last_indices:  [0],
                 }).setDirection(tie_scale))
-                ties.push(new Vex.Flow.StaveTie({
+
+                elements.push(new Vex.Flow.StaveTie({
                     first_note: start,
                     last_note: end,
                     first_indices: [note.keys.length-1],
@@ -232,11 +235,32 @@ class ScoreGenerator {
             }
 
         }
+        vex_notes = context_ties
         
-        // add beams for groups of notes (loop reversed, partial groups come first, then groups of 4)
+        // add beams for groups of notes
+        let run_durarion = ""
+        let run_length   = 0
+        let run = []
+        for(let i = 0; i < vex_notes.length; i++) {
+            // loop in reverse, whole groups preferred to be at end of bar
+            let note = vex_notes[i]
 
-        //  return beams, ties and other things that need rendering
-        return {notes: context_ties, ties}
+            // add bars for runs of 2 and 4 notes of values less than a quarter note
+            if(note.duration == run_durarion) {
+                run_length++
+                run.push(note)
+
+                if(run_length == 4) {
+                    elements.push(new Vex.Flow.Beam(run))
+                }
+            } else {
+                run_durarion = note.duration
+                run_length   = 0
+                run = []
+            }
+        }
+
+        return {notes: vex_notes, elements}
     }
 
     new_bar() {
@@ -288,9 +312,10 @@ class ScoreGenerator {
         voice.addTickables(notes.notes)
         formatter.joinVoices([voice]).format([voice], this.bar_width - this.stave_offset)
         voice.draw(this.context, stave)
+        // Vex.Flow.Formatter.FormatAndDraw(this.context, stave, notes)
 
-        notes.ties.forEach(tie => {
-            tie.setContext(this.context).draw()
+        notes.elements.forEach(elt => {
+            elt.setContext(this.context).draw()
         })
     }
 }

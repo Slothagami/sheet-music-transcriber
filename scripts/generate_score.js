@@ -13,7 +13,6 @@ class ScoreGenerator {
             artist:     score.artist,
             margin:               .1,
             stave_height:        .15,
-            stave_width:          .1,
             font_size:           925,
             row_bars:              3,
             beats_per_bar:         4,
@@ -21,7 +20,7 @@ class ScoreGenerator {
             min_title_space:    .001,
             title_size:         .035,
             stave_gap:           .07,
-            tie_scale:            .7,
+            tie_scale:            .8,
         }
         this.generate()
         window.addEventListener("resize", () => {this.generate()})
@@ -112,7 +111,6 @@ class ScoreGenerator {
         this.bar_width    = (this.inner_width / this.settings.row_bars) / this.scale
         this.stave_height = (this.height * this.settings.stave_height) / this.scale
         this.stave_gap    = (this.height * this.settings.stave_gap) / this.scale
-        this.stave_width  = (this.width * this.settings.stave_width) / this.scale
         this.title_space  = (this.settings.title_space * this.height) / this.scale
         this.title_size   = (this.settings.title_size * this.height) / this.scale
     
@@ -132,7 +130,6 @@ class ScoreGenerator {
         let treble_voice = new Voice(voice_args)
         let bass_voice   = new Voice(voice_args)
         let treble_notes, bass_notes
-        let formatter = new Formatter()
 
         let treble_ind = 0
         let bass_ind   = 0
@@ -150,8 +147,8 @@ class ScoreGenerator {
 
             // render voice
             this.draw_bar(bar)
-            this.draw_voice(treble_voice, treble_notes, bar.treble, formatter)
-            this.draw_voice(bass_voice,   bass_notes,   bar.bass,   formatter)
+            this.draw_voice(treble_voice, treble_notes, bar.treble)
+            this.draw_voice(bass_voice,   bass_notes,   bar.bass  )
 
             // reset for next bar
             bar          = this.new_bar()
@@ -180,8 +177,8 @@ class ScoreGenerator {
 
         let vex_notes = []
         notes.forEach(note => {
-            // note.stem_direction = Vex.Flow.Stem.DOWN
-            vex_notes.push(new StaveNote(note))
+            let vex_note = new StaveNote(note)
+            vex_notes.push(vex_note)
         })
 
         // add contextual ties (split 1/4 note into 2 tied 8th notes if sourrdounded by 8th notes)
@@ -237,28 +234,34 @@ class ScoreGenerator {
         }
         vex_notes = context_ties
         
-        // add beams for groups of notes
-        let run_durarion = ""
-        let run_length   = 0
-        let run = []
-        for(let i = 0; i < vex_notes.length; i++) {
-            // loop in reverse, whole groups preferred to be at end of bar
-            let note = vex_notes[i]
+        // // add beams for groups of notes
+        // let run_durarion = ""
+        // let run_length   = 0
+        // let run = []
+        // for(let i = vex_notes.length-1; i >= 0; i--) {
+        //     // loop in reverse, whole groups preferred to be at end of bar
+        //     let note = vex_notes[i]
 
-            // add bars for runs of 2 and 4 notes of values less than a quarter note
-            if(note.duration == run_durarion) {
-                run_length++
-                run.push(note)
+        //     // add bars for runs of 2 and 4 notes of values less than a quarter note
+        //     if(note.duration == run_durarion) { // if its the same note type as previous
+        //         run_length++
+        //         run.push(note)
 
-                if(run_length == 4) {
-                    elements.push(new Vex.Flow.Beam(run))
-                }
-            } else {
-                run_durarion = note.duration
-                run_length   = 0
-                run = []
-            }
-        }
+        //         if(run_length == 4) {
+        //             // add bar to run
+        //             elements.push(new Vex.Flow.Beam(run))
+
+        //             run_durarion = note.duration
+        //             run_length   = 1
+        //             run = [note]
+        //         }
+        //     } else {
+        //         // kill run
+        //         run_durarion = note.duration
+        //         run_length   = 1
+        //         run = [note]
+        //     }
+        // }
 
         return {notes: vex_notes, elements}
     }
@@ -273,13 +276,11 @@ class ScoreGenerator {
         let line_left  = new Vex.Flow.StaveConnector(stave, bass_stave).setType(1)
         let brace      = null
 
-        this.stave_offset = 0
         if(this.page.bars_in_row == 0) {
             // add decorations to start the row
             stave.addClef("treble").addTimeSignature("4/4")
             bass_stave.addClef("bass").addTimeSignature("4/4")
             brace = new Vex.Flow.StaveConnector(stave, bass_stave).setType(3)
-            this.stave_offset = this.stave_width
         }
     
         this.page.stave_x += this.bar_width
@@ -308,11 +309,12 @@ class ScoreGenerator {
         }
     }
 
-    draw_voice(voice, notes, stave, formatter) {
+    draw_voice(voice, notes, stave) {
         voice.addTickables(notes.notes)
-        formatter.joinVoices([voice]).format([voice], this.bar_width - this.stave_offset)
-        voice.draw(this.context, stave)
-        // Vex.Flow.Formatter.FormatAndDraw(this.context, stave, notes)
+        Vex.Flow.Formatter.FormatAndDraw(
+            this.context, stave, notes.notes,
+            {align_rests: true, auto_beam: true}
+        )
 
         notes.elements.forEach(elt => {
             elt.setContext(this.context).draw()

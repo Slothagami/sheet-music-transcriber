@@ -12,3 +12,4 @@
   - detect groups of notes that can be barred (2 or 4 consecutive 16th or 8th notes)
   - download (svg or pdf option)
     - convert to pdf
+  - stems down on treble clef

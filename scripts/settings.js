@@ -49,8 +49,15 @@ const score = {
     ]
 }
 
+const keys = [
+    'A', 'B', 'C', 'D', 'E', 'F', 'G', 
+    'C#', 'F#',
+    'Ab', 'Bb', 'Db', 'Eb', 'Gb'
+]
 var margin, size, generator, elem = {}
 function init() {
+    
+    // setup
     generator = new ScoreGenerator(score)
     
     for(let param in generator.settings) {
@@ -60,6 +67,17 @@ function init() {
             elem[param].value = generator.settings[param]
         }
     }
+    
+    // fill out key dropdown options
+    keys.forEach(key => {
+        let op = document.createElement("option")
+            op.value = key
+            op.innerText = key
+
+        elem.key.appendChild(op)
+    })
+    // update its value again
+    elem.key.value = generator.settings.key
 
     requestAnimationFrame(update_params)
 }

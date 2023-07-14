@@ -39,7 +39,7 @@
                 width: 60%;
             }
 
-            input[type=text], input[type=number], a, textarea {
+            input[type=text], input[type=number], a, textarea, select {
                 background-color: black;
                 border: none;
                 outline: none;
@@ -50,6 +50,14 @@
             input[type=text], input[type=number], a {
                 height: 1.6em;
             }
+
+            select {
+                width: 30%;
+            }
+            input[type=number] {
+                width: calc(30% - 1em);
+            }
+
             input[type=text], a, textarea {
                 width: calc(100% - 1em);
             }
@@ -94,6 +102,11 @@
             <div class="row">
                 <p>Bars per row</p>
                 <input type="number" id="row_bars" min="1" max="8" step="1">
+            </div>
+
+            <div class="row">
+                <p>Key: </p>
+                <select id="key"></select>
             </div>
 
             <div class="row section">

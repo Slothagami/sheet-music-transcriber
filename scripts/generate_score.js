@@ -11,6 +11,7 @@ class ScoreGenerator {
             title:       score.title,
             subtitle: score.subtitle,
             artist:     score.artist,
+            key:           score.key,
             margin:               .1,
             stave_height:        .15,
             font_size:           925,
@@ -233,35 +234,6 @@ class ScoreGenerator {
 
         }
         vex_notes = context_ties
-        
-        // // add beams for groups of notes
-        // let run_durarion = ""
-        // let run_length   = 0
-        // let run = []
-        // for(let i = vex_notes.length-1; i >= 0; i--) {
-        //     // loop in reverse, whole groups preferred to be at end of bar
-        //     let note = vex_notes[i]
-
-        //     // add bars for runs of 2 and 4 notes of values less than a quarter note
-        //     if(note.duration == run_durarion) { // if its the same note type as previous
-        //         run_length++
-        //         run.push(note)
-
-        //         if(run_length == 4) {
-        //             // add bar to run
-        //             elements.push(new Vex.Flow.Beam(run))
-
-        //             run_durarion = note.duration
-        //             run_length   = 1
-        //             run = [note]
-        //         }
-        //     } else {
-        //         // kill run
-        //         run_durarion = note.duration
-        //         run_length   = 1
-        //         run = [note]
-        //     }
-        // }
 
         return {notes: vex_notes, elements}
     }
@@ -278,8 +250,14 @@ class ScoreGenerator {
 
         if(this.page.bars_in_row == 0) {
             // add decorations to start the row
-            stave.addClef("treble").addTimeSignature("4/4")
-            bass_stave.addClef("bass").addTimeSignature("4/4")
+            stave.addClef("treble")
+                .addTimeSignature("4/4")
+                .addKeySignature(this.settings.key)
+                
+            bass_stave.addClef("bass")
+                .addTimeSignature("4/4")
+                .addKeySignature(this.settings.key)
+
             brace = new Vex.Flow.StaveConnector(stave, bass_stave).setType(3)
         }
     

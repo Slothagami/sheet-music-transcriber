@@ -21,6 +21,7 @@ class ScoreGenerator {
             min_title_space:    .001,
             title_size:         .035,
             stave_gap:           .07,
+            tie_scale:            .7,
         }
         this.generate()
         window.addEventListener("resize", () => {this.generate()})
@@ -141,11 +142,11 @@ class ScoreGenerator {
             // get this bar's set of notes
             let treble   = this.next_bar_notes(score.treble, treble_ind)
             treble_ind   = treble.index
-            treble_notes = treble.notes
+            treble_notes = this.decorate_bar(treble.notes)
 
             let bass   = this.next_bar_notes(score.bass, bass_ind)
             bass_ind   = bass.index
-            bass_notes = bass.notes
+            bass_notes = this.decorate_bar(bass.notes)
 
             // render voice
             this.draw_bar(bar)
@@ -166,12 +167,76 @@ class ScoreGenerator {
         while(beats < 1) {
             note = voice[index]
             beats += durations[note.duration.replace("r", "")]
-            notes.push(
-                new StaveNote(note)
-            )
+            notes.push(note)
             index++
         }
         return { index, notes }
+    }
+
+    decorate_bar(notes) {
+        // adds ties, beams and other symbols
+        // converts MIDI notes into VexFlow notation format
+
+        let vex_notes = []
+        notes.forEach(note => {
+            vex_notes.push(new StaveNote(note))
+        })
+
+        // add contextual ties (split 1/4 note into 2 tied 8th notes if sourrdounded by 8th notes)
+        let context_ties = []
+        let ties = []
+        for(let i = 0; i < vex_notes.length; i++) {
+            let note = vex_notes[i]
+
+            let not_on_edge = i > 0 && i < vex_notes.length - 1
+            let is_quarter_note = note.duration == "q"
+            
+            let eigth_left  = false
+            let eigth_right = false
+
+            if(not_on_edge) {
+                // calculate only if indexes will be valid
+                eigth_left  = vex_notes[i-1].duration == "8"
+                eigth_right = vex_notes[i+1].duration == "8"
+            }
+            let is_samwiched = eigth_left && eigth_right
+
+            if(not_on_edge && is_quarter_note && is_samwiched) {
+                // replace with two tied 8th notes
+                let start = new StaveNote({
+                    keys: note.keys,
+                    duration: "8"
+                })
+                let end = new StaveNote({
+                    keys: note.keys,
+                    duration: "8"
+                })
+
+                context_ties.push(start, end)
+                let tie_scale = this.settings.tie_scale
+                ties.push(new Vex.Flow.StaveTie({
+                    first_note: start,
+                    last_note: end,
+                    first_indices: [0],
+                    last_indices:  [0],
+                }).setDirection(tie_scale))
+                ties.push(new Vex.Flow.StaveTie({
+                    first_note: start,
+                    last_note: end,
+                    first_indices: [note.keys.length-1],
+                    last_indices:  [note.keys.length-1],
+                }).setDirection(-tie_scale))
+            } else {
+                // leave note as is
+                context_ties.push(note)
+            }
+
+        }
+        
+        // add beams for groups of notes (loop reversed, partial groups come first, then groups of 4)
+
+        //  return beams, ties and other things that need rendering
+        return {notes: context_ties, ties}
     }
 
     new_bar() {
@@ -220,8 +285,12 @@ class ScoreGenerator {
     }
 
     draw_voice(voice, notes, stave, formatter) {
-        voice.addTickables(notes)
+        voice.addTickables(notes.notes)
         formatter.joinVoices([voice]).format([voice], this.bar_width - this.stave_offset)
         voice.draw(this.context, stave)
+
+        notes.ties.forEach(tie => {
+            tie.setContext(this.context).draw()
+        })
     }
 }

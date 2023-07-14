@@ -22,6 +22,7 @@ class ScoreGenerator {
             title_size:         .035,
             stave_gap:           .07,
             tie_scale:            .8,
+            first_bar_grow:       .2,
         }
         this.generate()
         window.addEventListener("resize", () => {this.generate()})
@@ -109,7 +110,14 @@ class ScoreGenerator {
         this.scale        = this.width / this.settings.font_size
         this.margin       = (this.width * this.settings.margin) / this.scale
         this.inner_width  = this.width - 2 * (this.margin * this.scale) // undo scale stretch before its applied again in bar_width
+        
+        this.uniform_bar_width    = (this.inner_width / this.settings.row_bars) / this.scale
         this.bar_width    = (this.inner_width / this.settings.row_bars) / this.scale
+        this.first_bar_width = this.uniform_bar_width * (1 + parseFloat(this.settings.first_bar_grow))
+
+        let remaining_width = this.inner_width - this.first_bar_width * this.scale
+        this.small_bar_width = (remaining_width / (this.settings.row_bars-1)) / this.scale
+        
         this.stave_height = (this.height * this.settings.stave_height) / this.scale
         this.stave_gap    = (this.height * this.settings.stave_gap) / this.scale
         this.title_space  = (this.settings.title_space * this.height) / this.scale
@@ -240,8 +248,9 @@ class ScoreGenerator {
 
     new_bar() {
         // make a new stave in the correct position
-        let stave      = new Stave(this.page.stave_x, this.page.stave_y, this.bar_width)
-        let bass_stave = new Stave(this.page.stave_x, this.page.stave_y + this.stave_gap, this.bar_width)
+        let width = this.page.bars_in_row == 0? this.first_bar_width: this.small_bar_width
+        let stave      = new Stave(this.page.stave_x, this.page.stave_y, width)
+        let bass_stave = new Stave(this.page.stave_x, this.page.stave_y + this.stave_gap, width)
         
         // connect the staves
         let line_right = new Vex.Flow.StaveConnector(stave, bass_stave).setType(0)
@@ -253,7 +262,7 @@ class ScoreGenerator {
             stave.addClef("treble")
                 .addTimeSignature("4/4")
                 .addKeySignature(this.settings.key)
-                
+
             bass_stave.addClef("bass")
                 .addTimeSignature("4/4")
                 .addKeySignature(this.settings.key)
@@ -261,7 +270,7 @@ class ScoreGenerator {
             brace = new Vex.Flow.StaveConnector(stave, bass_stave).setType(3)
         }
     
-        this.page.stave_x += this.bar_width
+        this.page.stave_x += width
         this.page.bars_in_row++
         
         if(this.page.bars_in_row >= this.settings.row_bars) {

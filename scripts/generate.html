@@ -35,10 +35,6 @@
                 margin-top: 2.5em;
             }
 
-            input[type=range] {
-                width: 60%;
-            }
-
             input[type=text], input[type=number], a, textarea, select {
                 background-color: black;
                 border: none;
@@ -90,6 +86,48 @@
             .center {
                 text-align: center;
             }
+
+            /* Sliders */
+            input[type=range] {
+                -webkit-appearance: none;
+                height: 10px;
+                background: #000000;
+                outline: none;
+                opacity: 0.7;
+                -webkit-transition: .2s;
+                transition: opacity .2s;
+            }
+
+            input[type=range]:hover {
+                opacity: 1;
+            }
+
+            input[type=range]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 10px;
+                height: 10px;
+                background: #505050;
+                cursor: pointer;
+            }
+
+            input[type=range]::-moz-range-thumb {
+                width: 25px;
+                height: 25px;
+                background: #04AA6D;
+                cursor: pointer;
+            }
+
+            #style-settings p {
+                margin: .2em 0;
+            }
+            #style-settings {
+                padding: 1em;
+                background-color: #181818;
+            }
+            summary {
+                margin: .5em auto;
+            }
         </style>
     </head>
     <body>
@@ -99,53 +137,64 @@
             <input type="text" id="subtitle" placeholder="subtitle">
             <textarea rows="3" id="artist" placeholder="artists"></textarea>
 
+            
             <div class="row">
-                <p>Bars per row</p>
-                <input type="number" id="row_bars" min="1" max="8" step="1">
-            </div>
-
-            <div class="row">
-                <p>Key: </p>
+                <p>Key </p>
                 <select id="key"></select>
             </div>
-
-            <div class="row section">
-                <p>Title Space</p>
-                <input type="range" id="title_space" min="0" max=".4" step=".005">
-            </div>
-            
             <div class="row">
-                <p>Title Size</p>
-                <input type="range" id="title_size" min=".01" max=".1" step=".001">
-            </div>
-            
-            <div class="row">
-                <p>Margin</p>
-                <input type="range" id="margin" min="0" max=".3" step=".005">
-            </div>
-            
-            <div class="row">
-                <p>Size</p>
-                <input type="range" id="font_size" min="750" max="1500" step="1">
-            </div>
-            
-            <div class="row">
-                <p>Stave Seperation</p>
-                <input type="range" id="stave_height" min=".15" max=".3" step=".01">
-            </div>
-            <div class="row">
-                <p>Stave Gap</p>
-                <input type="range" id="stave_gap" min=".06" max=".15" step=".005">
-            </div>
-            <div class="row">
-                <p>First Bar Width</p>
-                <input type="range" id="first_bar_grow" min="0" max="1" step=".05">
+                <p>Time Signature</p>
+                <select id="time_signature"></select>
             </div>
 
-            <div class="row">
-                <p>Tie Arc</p>
-                <input type="range" id="tie_scale" min=".01" max="2" step=".005">
-            </div>
+            <details class="section">
+                <summary>Style Settings</summary>
+
+                <div id="style-settings">
+                    <div class="row">
+                        <p>Bars per row</p>
+                        <input type="number" id="row_bars" min="1" max="8" step="1">
+                    </div>
+    
+                    <div class="row">
+                        <p>Title Space</p>
+                        <input type="range" id="title_space" min="0" max=".4" step=".005">
+                    </div>
+                    
+                    <div class="row">
+                        <p>Title Size</p>
+                        <input type="range" id="title_size" min=".01" max=".1" step=".001">
+                    </div>
+                    
+                    <div class="row">
+                        <p>Margin</p>
+                        <input type="range" id="margin" min="0" max=".3" step=".005">
+                    </div>
+                    
+                    <div class="row">
+                        <p>Size</p>
+                        <input type="range" id="font_size" min="750" max="1500" step="1">
+                    </div>
+                    
+                    <div class="row">
+                        <p>Stave Seperation</p>
+                        <input type="range" id="stave_height" min=".15" max=".3" step=".01">
+                    </div>
+                    <div class="row">
+                        <p>Stave Gap</p>
+                        <input type="range" id="stave_gap" min=".06" max=".15" step=".005">
+                    </div>
+                    <div class="row">
+                        <p>First Bar Width</p>
+                        <input type="range" id="first_bar_grow" min="0" max="1" step=".05">
+                    </div>
+    
+                    <div class="row">
+                        <p>Tie Arc</p>
+                        <input type="range" id="tie_scale" min=".01" max="2" step=".005">
+                    </div>
+                </div>
+            </details>
 
             <p class="section center">Download</p>
             <div class="row">

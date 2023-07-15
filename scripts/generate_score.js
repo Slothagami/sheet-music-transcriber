@@ -12,6 +12,7 @@ class ScoreGenerator {
             subtitle: score.subtitle,
             artist:     score.artist,
             key:           score.key,
+            time_signature: score.time_signature,
             margin:               .1,
             stave_height:        .15,
             font_size:           925,
@@ -111,11 +112,10 @@ class ScoreGenerator {
         this.margin       = (this.width * this.settings.margin) / this.scale
         this.inner_width  = this.width - 2 * (this.margin * this.scale) // undo scale stretch before its applied again in bar_width
         
-        this.uniform_bar_width    = (this.inner_width / this.settings.row_bars) / this.scale
-        this.bar_width    = (this.inner_width / this.settings.row_bars) / this.scale
-        this.first_bar_width = this.uniform_bar_width * (1 + parseFloat(this.settings.first_bar_grow))
+        this.uniform_bar_width = (this.inner_width / this.settings.row_bars) / this.scale
+        this.first_bar_width   = this.uniform_bar_width * (1 + parseFloat(this.settings.first_bar_grow))
 
-        let remaining_width = this.inner_width - this.first_bar_width * this.scale
+        let remaining_width  = this.inner_width - this.first_bar_width * this.scale
         this.small_bar_width = (remaining_width / (this.settings.row_bars-1)) / this.scale
         
         this.stave_height = (this.height * this.settings.stave_height) / this.scale
@@ -260,12 +260,15 @@ class ScoreGenerator {
         if(this.page.bars_in_row == 0) {
             // add decorations to start the row
             stave.addClef("treble")
-                .addTimeSignature("4/4")
                 .addKeySignature(this.settings.key)
 
             bass_stave.addClef("bass")
-                .addTimeSignature("4/4")
                 .addKeySignature(this.settings.key)
+
+            if(this.settings.time_signature != "none") {
+                stave.addTimeSignature(this.settings.time_signature)
+                bass_stave.addTimeSignature(this.settings.time_signature)
+            }
 
             brace = new Vex.Flow.StaveConnector(stave, bass_stave).setType(3)
         }

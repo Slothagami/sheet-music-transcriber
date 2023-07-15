@@ -6,6 +6,7 @@ const score = {
     artist:   "Symphoniac\nMagical Piano\nBlake Woolley",
     bpm:      160,
     key:      "Eb",
+    time_signature: "none",
 
     treble: [
         {keys: ["b/4"], duration: "qr"},
@@ -54,6 +55,14 @@ const keys = [
     'C#', 'F#',
     'Ab', 'Bb', 'Db', 'Eb', 'Gb'
 ]
+const time_signatures = [
+    "none",
+    "C",   '4/4',  '3/4', 
+    '2/4', '2/2',  '3/8', 
+    '3/2', '4/8',  '4/2', 
+    '6/8', '6/4',  '9/8', 
+    '9/4', '12/8', '12/4'
+]
 var margin, size, generator, elem = {}
 function init() {
     
@@ -69,15 +78,8 @@ function init() {
     }
     
     // fill out key dropdown options
-    keys.forEach(key => {
-        let op = document.createElement("option")
-            op.value = key
-            op.innerText = key
-
-        elem.key.appendChild(op)
-    })
-    // update its value again
-    elem.key.value = generator.settings.key
+    fill_dropdown("key", keys)
+    fill_dropdown("time_signature", time_signatures)
 
     requestAnimationFrame(update_params)
 }
@@ -89,4 +91,17 @@ function update_params() {
     
     generator.generate()
     requestAnimationFrame(update_params)
+}
+
+
+function fill_dropdown(dropdown, options) {
+    options.forEach(key => {
+        let op = document.createElement("option")
+            op.value = key
+            op.innerText = key
+
+        elem[dropdown].appendChild(op)
+    })
+    // update its value again
+    elem[dropdown].value = generator.settings[dropdown]
 }

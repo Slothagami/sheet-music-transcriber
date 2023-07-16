@@ -12,6 +12,3 @@
   - generate multiple pages (hide all but first page for editing)
     - download (svg or pdf option)
       - convert to pdf
-
-  - make is_bass_clef(voice_notes) function that works on entire bar to avoid single notes rendered as if on wrong clef
-    - use this to center rests

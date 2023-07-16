@@ -242,6 +242,11 @@ class ScoreGenerator {
         if(is_bass) {
             note.clef = "bass"
         }
+        if(note.duration.endsWith("r")) {
+            // center rests (if this note is a rest)
+            note.keys = ["b/4"]
+            if(is_bass) note.keys = ["c/3"]
+        }
 
         let vex_note = new StaveNote(note)
         if(note.duration.endsWith("d")) {
@@ -412,7 +417,7 @@ class ScoreGenerator {
         voice.addTickables(notes.notes)
         Vex.Flow.Formatter.FormatAndDraw(
             this.context, stave, notes.notes,
-            {align_rests: true, auto_beam: true}
+            {align_rests: false, auto_beam: true}
         )
 
         notes.elements.forEach(elt => {

@@ -110,7 +110,7 @@ function update_params() {
     }
     
     generator.generate()
-    // requestAnimationFrame(update_params)
+    requestAnimationFrame(update_params)
 }
 
 

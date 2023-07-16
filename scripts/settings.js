@@ -12,7 +12,6 @@ const score = {
         {keys: ["b/4"], duration: "qr"},
         {keys: ["b/4","g/5"], duration: "8"},
         {keys: ["b/4","e/5"], duration: "q"},
-        // {keys: ["b/4","e/5"], duration: "8"},
         {keys: ["b/4","e/5"], duration: "8"},
         {keys: ["b/4","f/5"], duration: "8"},
         {keys: ["b/4","g/5"], duration: "8"},
@@ -20,7 +19,6 @@ const score = {
         {keys: ["b/4"], duration: "qr"},
         {keys: ["b/4","g/5"], duration: "8"},
         {keys: ["b/4","e/5"], duration: "q"},
-        // {keys: ["b/4","e/5"], duration: "8"},
         {keys: ["b/4","e/5"], duration: "8"},
         {keys: ["b/4","f/5"], duration: "8"},
         {keys: ["b/4","g/5"], duration: "8"},
@@ -28,7 +26,6 @@ const score = {
         {keys: ["b/4"], duration: "qr"},
         {keys: ["b/4","g/5"], duration: "8"},
         {keys: ["b/4","e/5"], duration: "q"},
-        // {keys: ["b/4","e/5"], duration: "8"},
         {keys: ["b/4","e/5"], duration: "8"},
         {keys: ["b/4","f/5"], duration: "8"},
         {keys: ["b/4","g/5"], duration: "8"},
@@ -36,17 +33,40 @@ const score = {
         {keys: ["b/4"], duration: "qr"},
         {keys: ["b/4","e/5"], duration: "8"},
         {keys: ["e/5","g/5","c/6"], duration: "q"},
-        // {keys: ["b/4","e/5"], duration: "8"},
         {keys: ["b/5"], duration: "8"},
         {keys: ["g/5"], duration: "8"},
         {keys: ["e/5"], duration: "8"},
     ],
     bass: [
-        {keys: ["e/4","e/5"], duration: "w"},
-        {keys: ["e/4","e/5"], duration: "w"},
-        {keys: ["e/4","e/5"], duration: "w"},
-        {keys: ["e/4","e/5"], duration: "w"},
-        
+        {clef: "bass", keys: ["e/2","e/3"], duration: "8"},
+        [
+            {clef: "bass", keys: ["e/2","e/3"], duration: "qd"},
+            {clef: "bass", keys: ["e/2","e/3"], duration: "qd"},
+            {clef: "bass", keys: ["e/2","e/3"], duration: "16"},
+        ],
+        {clef: "bass", keys: ["e/3"], duration: "16r"},
+
+        {clef: "bass", keys: ["d/2","d/3"], duration: "8"},
+        [
+            {clef: "bass", keys: ["d/2","d/3"], duration: "qd"},
+            {clef: "bass", keys: ["d/2","d/3"], duration: "qd"},
+            {clef: "bass", keys: ["d/2","d/3"], duration: "16"},
+        ],
+        {clef: "bass", keys: ["d/2"], duration: "16r"},
+
+        {clef: "bass", keys: ["c/2","c/3"], duration: "8"},
+        [
+            {clef: "bass", keys: ["c/2","c/3"], duration: "qd"},
+            {clef: "bass", keys: ["c/2","c/3"], duration: "qd"},
+            {clef: "bass", keys: ["c/2","c/3"], duration: "16"},
+        ],
+        {clef: "bass", keys: ["c/2"], duration: "16r"},
+
+        {clef: "bass", keys: ["b/1","b/2"], duration: "qd"},
+        [
+            {clef: "bass", keys: ["e/2","b/2"], duration: "8"},
+            {clef: "bass", keys: ["e/2","b/2"], duration: "h"},
+        ]
     ]
 }
 

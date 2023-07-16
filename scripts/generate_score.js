@@ -1,7 +1,11 @@
 const { Renderer, Stave, Voice, StaveNote, Formatter, Clef, TimeSignature, TextNote } = Vex.Flow
 const durations  = {
-    "w": 1,   "h": 1/2, 
-    "q": 1/4, "8": 1/8
+    // whole notes
+    "w":  1,    // dotted notes
+    "h":  1/2,  "hd":  1/2  * 1.5, 
+    "q":  1/4,  "qd":  1/4  * 1.5, 
+    "8":  1/8,  "8d":  1/8  * 1.5,
+    "16": 1/16, "16d": 1/16 * 1.5
 }
 
 class ScoreGenerator {
@@ -14,7 +18,7 @@ class ScoreGenerator {
             key:           score.key,
             time_signature: score.time_signature,
             margin:               .1,
-            stave_height:        .15,
+            stave_height:        .17,
             font_size:           925,
             row_bars:              3,
             beats_per_bar:         4,
@@ -148,11 +152,11 @@ class ScoreGenerator {
             // get this bar's set of notes
             let treble   = this.next_bar_notes(score.treble, treble_ind)
             treble_ind   = treble.index
-            treble_notes = this.decorate_bar(treble.notes)
+            treble_notes = this.decorate_bar(treble)
 
             let bass   = this.next_bar_notes(score.bass, bass_ind)
             bass_ind   = bass.index
-            bass_notes = this.decorate_bar(bass.notes)
+            bass_notes = this.decorate_bar(bass)
 
             // render voice
             this.draw_bar(bar)
@@ -167,27 +171,76 @@ class ScoreGenerator {
     }
 
     next_bar_notes(voice, index) {
-        let note, beats = 0, notes = []
+        let note, type, beats = 0, notes = [], elements = []
 
         // loop until the beats in a bar is filled
         while(beats < 1) {
             note = voice[index]
-            beats += durations[note.duration.replace("r", "")]
+            switch (this.note_type(note)) {
+                case "note":
+                    beats += this.note_duration(note)
+                    break
+
+                case "tie_group":
+                    note.forEach(note_head => {
+                        // add duration for each note of group, assumes group is valid length for the bar
+                        beats += this.note_duration(note_head)
+                    })
+                    break
+
+            }
             notes.push(note)
             index++
         }
-        return { index, notes }
+        return { index, notes, elements }
     }
 
-    decorate_bar(notes) {
+    note_type(note) {
+        let typename = {
+            "[object Object]": "note",
+            "[object Array]":  "tie_group",
+        }
+        return typename[Object.prototype.toString.call(note)]
+    }
+
+    flatten_tie_group(note) {
+        let notes = []
+        let ties = []
+        
+        switch (this.note_type(note)) {
+            case "note": notes.push(new StaveNote(note)); break
+            case "tie_group":
+                // add and tie each note
+                let prev_note = null
+                note.forEach(note_head => {
+                    let note_obj = new StaveNote(note_head)
+                    notes.push(note_obj)
+                    
+                    if (prev_note != null) {
+                        this.tie_notes(prev_note, note_obj).forEach(tie => ties.push(tie))
+                    }
+                    prev_note = note_obj
+                })
+                break
+        }
+        return { notes, ties }
+    }
+
+    note_duration(note) {
+        return durations[note.duration.replace("r", "")]
+    }
+
+    decorate_bar(bar) {
         // adds ties, beams and other symbols
         // converts MIDI notes into VexFlow notation format
-        let elements = [] // elements that need seperate rendering
+        let elements = [...bar.elements] // elements that need seperate rendering
 
         let vex_notes = []
-        notes.forEach(note => {
-            let vex_note = new StaveNote(note)
-            vex_notes.push(vex_note)
+        bar.notes.forEach(note => {
+            let group = this.flatten_tie_group(note)
+
+            group.notes.forEach(note => vex_notes.push(note))
+            group.ties .forEach(tie  => elements .push(tie))
         })
 
         // add contextual ties (split 1/4 note into 2 tied 8th notes if sourrdounded by 8th notes)
@@ -220,21 +273,10 @@ class ScoreGenerator {
                 })
 
                 context_ties.push(start, end)
-                let tie_scale = this.settings.tie_scale
 
-                elements.push(new Vex.Flow.StaveTie({
-                    first_note: start,
-                    last_note: end,
-                    first_indices: [0],
-                    last_indices:  [0],
-                }).setDirection(tie_scale))
+                this.tie_notes(start, end)
+                    .forEach(tie => elements.push(tie))
 
-                elements.push(new Vex.Flow.StaveTie({
-                    first_note: start,
-                    last_note: end,
-                    first_indices: [note.keys.length-1],
-                    last_indices:  [note.keys.length-1],
-                }).setDirection(-tie_scale))
             } else {
                 // leave note as is
                 context_ties.push(note)
@@ -244,6 +286,24 @@ class ScoreGenerator {
         vex_notes = context_ties
 
         return {notes: vex_notes, elements}
+    }
+
+    tie_notes(note_a, note_b) {
+        let top_tie = new Vex.Flow.StaveTie({
+            first_note: note_a,
+            last_note: note_b,
+            first_indices: [note_a.keys.length-1],
+            last_indices:  [note_a.keys.length-1],
+        }).setDirection(-this.settings.tie_scale)
+
+        let bottom_tie = new Vex.Flow.StaveTie({
+            first_note: note_a,
+            last_note: note_b,
+            first_indices: [0],
+            last_indices:  [0],
+        }).setDirection(this.settings.tie_scale)
+
+        return [top_tie, bottom_tie]
     }
 
     new_bar() {

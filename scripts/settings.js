@@ -38,34 +38,34 @@ const score = {
         {keys: ["e/5"], duration: "8"},
     ],
     bass: [
-        {clef: "bass", keys: ["e/2","e/3"], duration: "8"},
+        {keys: ["e/2","e/3"], duration: "8"},
         [
-            {clef: "bass", keys: ["e/2","e/3"], duration: "qd"},
-            {clef: "bass", keys: ["e/2","e/3"], duration: "qd"},
-            {clef: "bass", keys: ["e/2","e/3"], duration: "16"},
+            {keys: ["e/2","e/3"], duration: "qd"},
+            {keys: ["e/2","e/3"], duration: "qd"},
+            {keys: ["e/2","e/3"], duration: "16"},
         ],
-        {clef: "bass", keys: ["e/3"], duration: "16r"},
+        {keys: ["e/3"], duration: "16r"},
 
-        {clef: "bass", keys: ["d/2","d/3"], duration: "8"},
+        {keys: ["d/2","d/3"], duration: "8"},
         [
-            {clef: "bass", keys: ["d/2","d/3"], duration: "qd"},
-            {clef: "bass", keys: ["d/2","d/3"], duration: "qd"},
-            {clef: "bass", keys: ["d/2","d/3"], duration: "16"},
+            {keys: ["d/2","d/3"], duration: "qd"},
+            {keys: ["d/2","d/3"], duration: "qd"},
+            {keys: ["d/2","d/3"], duration: "16"},
         ],
-        {clef: "bass", keys: ["d/2"], duration: "16r"},
+        {keys: ["d/2"], duration: "16r"},
 
-        {clef: "bass", keys: ["c/2","c/3"], duration: "8"},
+        {keys: ["c/2","c/3"], duration: "8"},
         [
-            {clef: "bass", keys: ["c/2","c/3"], duration: "qd"},
-            {clef: "bass", keys: ["c/2","c/3"], duration: "qd"},
-            {clef: "bass", keys: ["c/2","c/3"], duration: "16"},
+            {keys: ["c/2","c/3"], duration: "qd"},
+            {keys: ["c/2","c/3"], duration: "qd"},
+            {keys: ["c/2","c/3"], duration: "16"},
         ],
-        {clef: "bass", keys: ["c/2"], duration: "16r"},
+        {keys: ["c/2"], duration: "16r"},
 
-        {clef: "bass", keys: ["b/1","b/2"], duration: "qd"},
+        {keys: ["b/1","b/2"], duration: "qd"},
         [
-            {clef: "bass", keys: ["e/2","b/2"], duration: "8"},
-            {clef: "bass", keys: ["e/2","b/2"], duration: "h"},
+            {keys: ["e/2","b/2"], duration: "8"},
+            {keys: ["e/2","b/2"], duration: "h"},
         ]
     ]
 }
@@ -110,7 +110,7 @@ function update_params() {
     }
     
     generator.generate()
-    requestAnimationFrame(update_params)
+    // requestAnimationFrame(update_params)
 }
 
 

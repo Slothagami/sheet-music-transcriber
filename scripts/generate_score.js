@@ -203,7 +203,25 @@ class ScoreGenerator {
         return typename[Object.prototype.toString.call(note)]
     }
 
+    key_octave(key) {
+        return parseInt(key.split("/")[1])
+    }
+
+    highest_octave(note) {
+        let highest = 0
+        note.keys.forEach(key => {
+            if(this.key_octave(key) > highest) {
+                highest = this.key_octave(key)
+            }
+        })
+        return highest
+    }
+
     new_note(note) {
+        if(this.highest_octave(note) <= 4) {
+            note.clef = "bass"
+        }
+
         let vex_note = new StaveNote(note)
         if(note.duration.endsWith("d")) {
             Vex.Flow.Dot.buildAndAttach([vex_note], {all: true})
@@ -271,11 +289,12 @@ class ScoreGenerator {
 
             if(not_on_edge && is_quarter_note && is_samwiched) {
                 // replace with two tied 8th notes
-                let start = new StaveNote({
+
+                let start = this.new_note({
                     keys: note.keys,
                     duration: "8"
                 })
-                let end = new StaveNote({
+                let end = this.new_note({
                     keys: note.keys,
                     duration: "8"
                 })

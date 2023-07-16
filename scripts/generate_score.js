@@ -217,8 +217,29 @@ class ScoreGenerator {
         return highest
     }
 
-    new_note(note) {
-        if(this.highest_octave(note) <= 4) {
+    bar_is_bass_clef(voice) {
+        let highest = 0
+        voice.notes.forEach(note => {
+            switch(this.note_type(note)) {
+                case "note":
+                    let octave = this.highest_octave(note)
+                    if(octave > highest) highest = octave
+                    break
+
+                case "tie_group":
+                    note.forEach(note_head => {
+                        let octave = this.highest_octave(note_head)
+                        if(octave > highest) highest = octave
+                    })
+                    break
+            }
+
+        })
+        return highest < 4 // if highest note is on lower half of piano, this is a bass bar
+    }
+
+    new_note(note, is_bass) {
+        if(is_bass) {
             note.clef = "bass"
         }
 
@@ -229,17 +250,17 @@ class ScoreGenerator {
         return vex_note
     }
 
-    flatten_tie_group(note) {
+    flatten_tie_group(note, is_bass) {
         let notes = []
         let ties = []
         
         switch (this.note_type(note)) {
-            case "note": notes.push(this.new_note(note)); break
+            case "note": notes.push(this.new_note(note, is_bass)); break
             case "tie_group":
                 // add and tie each note
                 let prev_note = null
                 note.forEach(note_head => {
-                    let note_obj = this.new_note(note_head)
+                    let note_obj = this.new_note(note_head, is_bass)
                     notes.push(note_obj)
                     
                     if (prev_note != null) {
@@ -262,8 +283,9 @@ class ScoreGenerator {
         let elements = [...bar.elements] // elements that need seperate rendering
 
         let vex_notes = []
+        let is_bass = this.bar_is_bass_clef(bar)
         bar.notes.forEach(note => {
-            let group = this.flatten_tie_group(note)
+            let group = this.flatten_tie_group(note, is_bass)
 
             group.notes.forEach(note => vex_notes.push(note))
             group.ties .forEach(tie  => elements .push(tie))
@@ -293,11 +315,11 @@ class ScoreGenerator {
                 let start = this.new_note({
                     keys: note.keys,
                     duration: "8"
-                })
+                }, is_bass)
                 let end = this.new_note({
                     keys: note.keys,
                     duration: "8"
-                })
+                }, is_bass)
 
                 context_ties.push(start, end)
 

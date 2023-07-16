@@ -18,14 +18,14 @@ class ScoreGenerator {
             key:           score.key,
             time_signature: score.time_signature,
             margin:               .1,
-            stave_height:        .17,
-            font_size:           925,
+            stave_height:        .15,
+            font_size:          1132,
             row_bars:              3,
             beats_per_bar:         4,
             title_space:        .055,
             min_title_space:    .001,
             title_size:         .035,
-            stave_gap:           .07,
+            stave_gap:           .06,
             tie_scale:            .8,
             first_bar_grow:       .2,
         }
@@ -182,7 +182,7 @@ class ScoreGenerator {
                     break
 
                 case "tie_group":
-                    note.forEach(note_head => {
+                    note.notes.forEach(note_head => {
                         // add duration for each note of group, assumes group is valid length for the bar
                         beats += this.note_duration(note_head)
                     })
@@ -196,11 +196,8 @@ class ScoreGenerator {
     }
 
     note_type(note) {
-        let typename = {
-            "[object Object]": "note",
-            "[object Array]":  "tie_group",
-        }
-        return typename[Object.prototype.toString.call(note)]
+        if(note.hasOwnProperty("type")) return note.type
+        return "note"
     }
 
     key_octave(key) {
@@ -227,7 +224,7 @@ class ScoreGenerator {
                     break
 
                 case "tie_group":
-                    note.forEach(note_head => {
+                    note.notes.forEach(note_head => {
                         let octave = this.highest_octave(note_head)
                         if(octave > highest) highest = octave
                     })
@@ -264,7 +261,7 @@ class ScoreGenerator {
             case "tie_group":
                 // add and tie each note
                 let prev_note = null
-                note.forEach(note_head => {
+                note.notes.forEach(note_head => {
                     let note_obj = this.new_note(note_head, is_bass)
                     notes.push(note_obj)
                     

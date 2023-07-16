@@ -2,8 +2,8 @@ window.addEventListener("load", init)
 
 const score = {
     title:    "BRAND NEW WORLD",
-    subtitle: "One Piece",
-    artist:   "Symphoniac\nMagical Piano\nBlake Woolley",
+    subtitle: "from One Piece",
+    artist:   "D-51\nSymphoniac\nMagical Piano\nBlake Woolley",
     bpm:      160,
     key:      "Eb",
     time_signature: "none",
@@ -36,37 +36,62 @@ const score = {
         {keys: ["b/5"], duration: "8"},
         {keys: ["g/5"], duration: "8"},
         {keys: ["e/5"], duration: "8"},
+
+        //
+        {keys: ["c/4", "e/4"], duration: "16"},
+        {keys: ["a/3"], duration: "16"},
+        {keys: ["e/4"], duration: "16"},
+        {keys: ["a/3"], duration: "16"},
+
+        {keys: ["e/4"], duration: "16"},
+        {keys: ["a/3"], duration: "16"},
+        {keys: ["e/4", "a/4"], duration: "16"},
+        {keys: ["c/4"], duration: "16"},
+
+        {keys: ["a/4"], duration: "16"},
+        {keys: ["c/4"], duration: "16"},
+        {keys: ["a/4"], duration: "16"},
+        {keys: ["c/4"], duration: "16"},
+
+        {keys: ["a/5"], duration: "4r"},
+        // {type: "tuplet", duration: "4", notes: [
+        //     {keys: ["c/5","c/6"], duration: "4"},
+        //     {keys: ["e/5"], duration: "4"},
+        //     {keys: ["a/6"], duration: "4"},
+        // ]}
     ],
     bass: [
         {keys: ["e/2","e/3"], duration: "8"},
-        [
+        {type: "tie_group", notes: [
             {keys: ["e/2","e/3"], duration: "qd"},
             {keys: ["e/2","e/3"], duration: "qd"},
             {keys: ["e/2","e/3"], duration: "16"},
-        ],
+        ]},
         {keys: ["e/3"], duration: "16r"},
 
         {keys: ["d/2","d/3"], duration: "8"},
-        [
+        {type: "tie_group", notes: [
             {keys: ["d/2","d/3"], duration: "qd"},
             {keys: ["d/2","d/3"], duration: "qd"},
             {keys: ["d/2","d/3"], duration: "16"},
-        ],
+        ]},
         {keys: ["d/2"], duration: "16r"},
 
         {keys: ["c/2","c/3"], duration: "8"},
-        [
+        {type: "tie_group", notes: [
             {keys: ["c/2","c/3"], duration: "qd"},
             {keys: ["c/2","c/3"], duration: "qd"},
             {keys: ["c/2","c/3"], duration: "16"},
-        ],
+        ]},
         {keys: ["c/2"], duration: "16r"},
 
         {keys: ["b/1","b/2"], duration: "qd"},
-        [
+        {type: "tie_group", notes: [
             {keys: ["e/2","b/2"], duration: "8"},
             {keys: ["e/2","b/2"], duration: "h"},
-        ]
+        ]},
+
+        {keys: ["a/1","a/2"], duration: "wr"},
     ]
 }
 

@@ -203,17 +203,25 @@ class ScoreGenerator {
         return typename[Object.prototype.toString.call(note)]
     }
 
+    new_note(note) {
+        let vex_note = new StaveNote(note)
+        if(note.duration.endsWith("d")) {
+            Vex.Flow.Dot.buildAndAttach([vex_note], {all: true})
+        }
+        return vex_note
+    }
+
     flatten_tie_group(note) {
         let notes = []
         let ties = []
         
         switch (this.note_type(note)) {
-            case "note": notes.push(new StaveNote(note)); break
+            case "note": notes.push(this.new_note(note)); break
             case "tie_group":
                 // add and tie each note
                 let prev_note = null
                 note.forEach(note_head => {
-                    let note_obj = new StaveNote(note_head)
+                    let note_obj = this.new_note(note_head)
                     notes.push(note_obj)
                     
                     if (prev_note != null) {

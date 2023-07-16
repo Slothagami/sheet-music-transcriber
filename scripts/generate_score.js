@@ -19,7 +19,7 @@ class ScoreGenerator {
             time_signature: score.time_signature,
             margin:               .1,
             stave_height:        .15,
-            font_size:          1132,
+            font_size:          1090,
             row_bars:              3,
             beats_per_bar:         4,
             title_space:        .055,
@@ -27,7 +27,7 @@ class ScoreGenerator {
             title_size:         .035,
             stave_gap:           .06,
             tie_scale:            .8,
-            first_bar_grow:       .2,
+            first_bar_grow:       .1,
         }
         this.generate()
         window.addEventListener("resize", () => {this.generate()})
@@ -178,6 +178,7 @@ class ScoreGenerator {
             note = voice[index]
             switch (this.note_type(note)) {
                 case "note":
+                case "tuplet":
                     beats += this.note_duration(note)
                     break
 
@@ -224,6 +225,7 @@ class ScoreGenerator {
                     break
 
                 case "tie_group":
+                case "tuplet":
                     note.notes.forEach(note_head => {
                         let octave = this.highest_octave(note_head)
                         if(octave > highest) highest = octave
@@ -252,9 +254,9 @@ class ScoreGenerator {
         return vex_note
     }
 
-    flatten_tie_group(note, is_bass) {
+    flatten_groups(note, is_bass) {
         let notes = []
-        let ties = []
+        let elements = []
         
         switch (this.note_type(note)) {
             case "note": notes.push(this.new_note(note, is_bass)); break
@@ -266,13 +268,38 @@ class ScoreGenerator {
                     notes.push(note_obj)
                     
                     if (prev_note != null) {
-                        this.tie_notes(prev_note, note_obj).forEach(tie => ties.push(tie))
+                        this.tie_notes(prev_note, note_obj).forEach(tie => elements.push(tie))
                     }
                     prev_note = note_obj
                 })
                 break
+
+            case "tuplet":
+                let tuplet_notes = []
+                note.notes.forEach(note_head => {
+                    let note_obj = this.new_note(note_head, is_bass)
+                    tuplet_notes.push(note_obj)
+                    notes.push(note_obj)
+                })
+
+                // make beam for the notes 
+                // let beam = new Vex.Flow.Beam(tuplet_notes, true)
+                // elements.push(beam)
+
+                // make tuplet sumbol
+                let tuplet = new Vex.Flow.Tuplet(
+                    tuplet_notes, 
+                    {
+                        beats_occupied: durations[note.duration] * this.settings.beats_per_bar,
+                        notes_occupied: 3,
+                        bracketed: true
+                    }   
+                )
+                elements.push(tuplet)
+
+                break
         }
-        return { notes, ties }
+        return { notes, elements }
     }
 
     note_duration(note) {
@@ -287,10 +314,10 @@ class ScoreGenerator {
         let vex_notes = []
         let is_bass = this.bar_is_bass_clef(bar)
         bar.notes.forEach(note => {
-            let group = this.flatten_tie_group(note, is_bass)
+            let group = this.flatten_groups(note, is_bass)
 
-            group.notes.forEach(note => vex_notes.push(note))
-            group.ties .forEach(tie  => elements .push(tie))
+            group.notes .forEach(note => vex_notes.push(note))
+            group.elements.forEach(el => elements .push(el))
         })
 
         // add contextual ties (split 1/4 note into 2 tied 8th notes if sourrdounded by 8th notes)
@@ -411,6 +438,7 @@ class ScoreGenerator {
     }
 
     draw_voice(voice, notes, stave) {
+        voice.setStrict(false) // use non strict mode to allow incorrect beats ber bar to render tuplets
         voice.addTickables(notes.notes)
         Vex.Flow.Formatter.FormatAndDraw(
             this.context, stave, notes.notes,

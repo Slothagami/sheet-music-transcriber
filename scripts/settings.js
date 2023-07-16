@@ -53,12 +53,32 @@ const score = {
         {keys: ["a/4"], duration: "16"},
         {keys: ["c/4"], duration: "16"},
 
-        {keys: ["a/5"], duration: "4r"},
-        // {type: "tuplet", duration: "4", notes: [
-        //     {keys: ["c/5","c/6"], duration: "4"},
-        //     {keys: ["e/5"], duration: "4"},
-        //     {keys: ["a/6"], duration: "4"},
-        // ]}
+        {type: "tuplet", duration: "4", notes: [
+            {keys: ["c/5","c/6"], duration: "8"},
+            {keys: ["e/5"], duration: "8"},
+            {keys: ["a/5"], duration: "8"},
+        ]},
+
+        //
+        {keys: ["b/4","b/5"], duration: "16"},
+        {keys: ["e/5"], duration: "16"},
+        {keys: ["b/4","g/5"], duration: "16"},
+        {keys: ["e/5"], duration: "16"},
+
+        {keys: ["b/4"], duration: "16"},
+        {keys: ["g/4"], duration: "16"},
+        {keys: ["e/4","e/5"], duration: "16"},
+        {keys: ["b/4"], duration: "16"},        
+
+        {keys: ["e/4"], duration: "16"},
+        {keys: ["g/4"], duration: "16"},
+        {keys: ["e/4"], duration: "16"},
+        {keys: ["b/4"], duration: "16"},
+
+        {keys: ["e/4"], duration: "16"},
+        {keys: ["b/4"], duration: "16"},
+        {keys: ["e/4"], duration: "16"},
+        {keys: ["g/4"], duration: "16"},
     ],
     bass: [
         {keys: ["e/2","e/3"], duration: "8"},
@@ -91,7 +111,20 @@ const score = {
             {keys: ["e/2","b/2"], duration: "h"},
         ]},
 
-        {keys: ["a/1","a/2"], duration: "wr"},
+        {keys: ["e/2","a/2","e/3"], duration: "q"},
+        {keys: ["a/2","e/3","a/3"], duration: "8"},
+        {keys: ["e/3","a/3"], duration: "q"},
+        {keys: ["a/2"], duration: "8"},
+        {keys: ["a/3"], duration: "8"},
+        {keys: ["c/3"], duration: "8"},
+
+
+        {keys: ["g/2","e/3","g/3"], duration: "q"},
+        {keys: ["b/3"], duration: "8"},
+        {keys: ["b/2","g/3","b/3"], duration: "q"},
+        {keys: ["e/3"], duration: "8"},
+        {keys: ["g/3"], duration: "8"},
+        {keys: ["b/3"], duration: "8"},
     ]
 }
 

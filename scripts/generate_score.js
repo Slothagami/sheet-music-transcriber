@@ -11,6 +11,8 @@ const durations  = {
 class ScoreGenerator {
     constructor(score) {
         this.container = document.querySelector("#pages")
+        this.page_number = 1
+        this.svg = null
 
         this.score = score
         this.settings = {
@@ -60,6 +62,17 @@ class ScoreGenerator {
             stave_y: this.margin + title_margin, 
             bars_in_row: 0
         }
+
+        // add page number 
+        this.svg = this.div.querySelector("svg")
+        this.text_element(
+            this.page_number, this.svg, 
+            "50%", 
+            this.height / this.scale - this.margin/2, 
+            this.title_size/2
+        )
+        this.page_number++
+
     }
 
     pdf() {
@@ -74,19 +87,20 @@ class ScoreGenerator {
         let scrollX = window.pageXOffset || document.documentElement.scrollLeft
         let scrollY = window.pageYOffset || document.documentElement.scrollTop
 
+        this.page_number = 1
         this.container.innerHTML = ""
+        
         this.setup_renderer()
         this.new_page(true)
-
-        this.add_notes()
         this.add_text()
+        this.add_notes()
 
         // return to previous scroll position
         window.scrollTo(scrollX, scrollY)
     }
 
     add_text() {
-        let svg = document.querySelector("svg")
+        let svg = this.svg//document.querySelector("svg")
         if(this.settings.title_space >= this.settings.min_title_space) {
             // add style
             let style = document.createElement("style")
@@ -107,7 +121,7 @@ class ScoreGenerator {
                 this.text_element(
                     lines[i], svg, 
                     (1 - this.settings.margin) * 100 + "%", 
-                    this.margin*1.7 + this.title_space + this.title_size - voffset + line_height*i, 
+                    this.margin*1.5 + this.title_space + this.title_size - voffset + line_height*i, 
                     this.title_size/2, 
                     true
                 )

@@ -75,11 +75,18 @@ class ScoreGenerator {
 
     }
 
-    pdf() {
-        let doc = new jspdf.jsPDF()
-        let svg_data = document.querySelector(".music > svg").innerHTML
-        doc.addSvg(svg_data, 0, 0, 1000, 1414)
-        doc.save()
+    download_pdf() {
+        alert("not currently implimented")
+
+        // let doc = new jspdf.jsPDF()
+        // let svg_data = document.querySelector(".music > svg").innerHTML
+        // doc.addSvg(svg_data, 0, 0, 1000, 1414)
+        // doc.save()
+    }
+
+    download_svg(a) {
+        alert("not currently implimented")
+        // let svg_dat = generator.renderer.ctx.save()
     }
 
     generate() {
@@ -89,7 +96,7 @@ class ScoreGenerator {
 
         this.page_number = 1
         this.container.innerHTML = ""
-        
+
         this.setup_renderer()
         this.new_page(true)
         this.add_text()
@@ -430,7 +437,7 @@ class ScoreGenerator {
 
     new_bar(last_bar=false) {
         // if the next bar will go over the page, make a new page
-        if(this.page.stave_y - this.stave_height >= this.height) {
+        if(this.page.stave_y - this.stave_height >= this.height - this.margin) {
             if(!last_bar) {
                 this.new_page()
             }

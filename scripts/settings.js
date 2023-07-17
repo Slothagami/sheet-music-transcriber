@@ -15,8 +15,6 @@ const time_signatures = [
 ]
 var margin, size, generator, elem = {}
 function init() {
-    
-    // setup
     generator = new ScoreGenerator(score)
     
     for(let param in generator.settings) {
@@ -30,6 +28,16 @@ function init() {
     // fill out key dropdown options
     fill_dropdown("key", keys)
     fill_dropdown("time_signature", time_signatures)
+
+    // attach button functions
+    let pdf_button = document.querySelector("#pdf-button")
+    let svg_button = document.querySelector("#svg-button")
+    pdf_button.addEventListener("click", () => {
+        generator.download_pdf(pdf_button)
+    })
+    svg_button.addEventListener("click", () => {
+        generator.download_svg(svg_button)
+    })
 
     requestAnimationFrame(update_params)
 }

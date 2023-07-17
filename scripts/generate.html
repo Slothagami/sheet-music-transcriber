@@ -9,6 +9,11 @@
         <script src="generate_score.js"></script>
         <script src="settings.js"></script>
         <style>
+            ::-webkit-scrollbar {width: 10px}
+            ::-webkit-scrollbar-track {background: transparent}
+            ::-webkit-scrollbar-thumb {background: #404040}
+            ::-webkit-scrollbar-thumb:hover {background: #505050}
+
             .settings {
                 width: 30%;
                 padding: 3em;
@@ -135,15 +140,16 @@
                 background-color: black;
             }
         </style>
+        <script src="test_scores/BRAND_NEW_WORLD.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     </head>
     <body>
-        <div id="music"></div>
+        <div id="pages"></div>
         <div class="settings">
             <input type="text" id="title" placeholder="title" style="margin-top: 0;">
             <input type="text" id="subtitle" placeholder="subtitle">
             <textarea rows="4" id="artist" placeholder="artists"></textarea>
 
-            
             <div class="row">
                 <p>Key </p>
                 <select id="key"></select>

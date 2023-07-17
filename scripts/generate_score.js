@@ -10,6 +10,8 @@ const durations  = {
 
 class ScoreGenerator {
     constructor(score) {
+        this.container = document.querySelector("#pages")
+
         this.score = score
         this.settings = {
             title:       score.title,
@@ -18,19 +20,40 @@ class ScoreGenerator {
             key:           score.key,
             time_signature: score.time_signature,
             margin:               .1,
-            stave_height:        .15,
+            stave_height:        .17,
             font_size:          1090,
             row_bars:              3,
             beats_per_bar:         4,
             title_space:        .055,
             min_title_space:    .001,
             title_size:         .035,
-            stave_gap:           .06,
+            stave_gap:           .07,
             tie_scale:            .8,
             first_bar_grow:       .1,
         }
         this.generate()
         window.addEventListener("resize", () => {this.generate()})
+    }
+    
+    new_page() {
+        this.div = document.createElement("div")
+        this.div.className = "music"
+
+        this.container.appendChild(this.div)
+
+        this.renderer = new Renderer(this.div, Renderer.Backends.SVG)
+        this.renderer.resize(this.width, this.height)
+        this.context  = this.renderer.getContext()
+    
+        // keep the music size relative to the page constant
+        this.context.scale(this.scale, this.scale) 
+    }
+
+    pdf() {
+        let doc = new jspdf.jsPDF()
+        let svg_data = document.querySelector(".music > svg").innerHTML
+        doc.addSvg(svg_data, 0, 0, 1000, 1414)
+        doc.save()
     }
 
     generate() {
@@ -38,10 +61,9 @@ class ScoreGenerator {
         let scrollX = window.pageXOffset || document.documentElement.scrollLeft
         let scrollY = window.pageYOffset || document.documentElement.scrollTop
 
-        this.div = document.getElementById("music")
-        this.div.innerHTML = ""
-
+        this.container.innerHTML = ""
         this.setup_renderer()
+        this.new_page()
 
         let title_visible = this.settings.title_space >= this.settings.min_title_space
         let title_margin = title_visible? this.margin * .75: 0
@@ -126,14 +148,6 @@ class ScoreGenerator {
         this.stave_gap    = (this.height * this.settings.stave_gap) / this.scale
         this.title_space  = (this.settings.title_space * this.height) / this.scale
         this.title_size   = (this.settings.title_size * this.height) / this.scale
-    
-        // initialize objects
-        this.renderer = new Renderer(this.div, Renderer.Backends.SVG)
-        this.renderer.resize(this.width, this.height)
-        this.context  = this.renderer.getContext()
-    
-        // keep the music size relative to the page constant
-        this.context.scale(this.scale, this.scale) 
     }
 
     add_notes() {
@@ -202,7 +216,15 @@ class ScoreGenerator {
     }
 
     key_octave(key) {
-        return parseInt(key.split("/")[1])
+        // factor in that C is the start of an octave
+        let keys = "ABCDEFG".split("")
+        let octave = parseInt(key.split("/")[1])
+        let note = key.split("/")[0].toUpperCase()
+
+        if(keys.indexOf(note) < keys.indexOf("C")) {
+            octave--
+        }
+        return octave
     }
 
     highest_octave(note) {
@@ -234,7 +256,7 @@ class ScoreGenerator {
             }
 
         })
-        return highest < 4 // if highest note is on lower half of piano, this is a bass bar
+        return highest <= 4 // if highest note is on lower half of piano, this is a bass bar
     }
 
     new_note(note, is_bass) {
@@ -290,8 +312,9 @@ class ScoreGenerator {
                 let tuplet = new Vex.Flow.Tuplet(
                     tuplet_notes, 
                     {
-                        beats_occupied: durations[note.duration] * this.settings.beats_per_bar,
-                        notes_occupied: 3,
+                        // beats_occupied: durations[note.duration] * this.settings.beats_per_bar,
+                        notes_occupied: 1/4,
+                        // notes_occupied: 3,
                         bracketed: true
                     }   
                 )

@@ -10,7 +10,5 @@
   - work out beat length
     - work out bar length, seperate midi into bars, and format each bar with ties, dotted notes, accidentals and tuplets
 
-- generate sheet music with VexFlow
-  - generate multiple pages (hide all but first page for editing)
-    - download (svg or pdf option)
-      - convert to pdf
+- download (svg or pdf option)
+  - convert to pdf

@@ -35,7 +35,7 @@ class ScoreGenerator {
         window.addEventListener("resize", () => {this.generate()})
     }
     
-    new_page() {
+    new_page(title=false) {
         this.div = document.createElement("div")
         this.div.className = "music"
 
@@ -47,6 +47,19 @@ class ScoreGenerator {
     
         // keep the music size relative to the page constant
         this.context.scale(this.scale, this.scale) 
+
+        // setup page object
+        let title_margin = 0
+        let title_visible = this.settings.title_space >= this.settings.min_title_space
+        if(title) {
+            title_margin = title_visible? this.margin * .75: 0
+            title_margin += this.title_space
+        }
+        this.page = {
+            stave_x: this.margin, 
+            stave_y: this.margin + title_margin, 
+            bars_in_row: 0
+        }
     }
 
     pdf() {
@@ -63,15 +76,8 @@ class ScoreGenerator {
 
         this.container.innerHTML = ""
         this.setup_renderer()
-        this.new_page()
+        this.new_page(true)
 
-        let title_visible = this.settings.title_space >= this.settings.min_title_space
-        let title_margin = title_visible? this.margin * .75: 0
-        this.page = {
-            stave_x: this.margin, 
-            stave_y: this.margin + this.title_space + title_margin, 
-            bars_in_row: 0
-        }
         this.add_notes()
         this.add_text()
 
@@ -178,7 +184,8 @@ class ScoreGenerator {
             this.draw_voice(bass_voice,   bass_notes,   bar.bass  )
 
             // reset for next bar
-            bar          = this.new_bar()
+            let last_bar = score.treble.length == treble_ind
+            bar          = this.new_bar(last_bar)
             treble_voice = new Voice(voice_args)
             bass_voice   = new Voice(voice_args)
         }
@@ -407,7 +414,14 @@ class ScoreGenerator {
         return [top_tie, bottom_tie]
     }
 
-    new_bar() {
+    new_bar(last_bar=false) {
+        // if the next bar will go over the page, make a new page
+        if(this.page.stave_y - this.stave_height >= this.height) {
+            if(!last_bar) {
+                this.new_page()
+            }
+        }
+
         // make a new stave in the correct position
         let width = this.page.bars_in_row == 0? this.first_bar_width: this.small_bar_width
         let stave      = new Stave(this.page.stave_x, this.page.stave_y, width)

@@ -1,20 +1,40 @@
 const { Renderer, Stave, Voice, StaveNote, Formatter, Clef, TimeSignature, TextNote } = Vex.Flow
-const durations  = {
-    // whole notes
-    "w":  1,    // dotted notes
-    "h":  1/2,  "hd":  1/2  * 1.5, 
-    "q":  1/4,  "qd":  1/4  * 1.5, 
-    "8":  1/8,  "8d":  1/8  * 1.5,
-    "16": 1/16, "16d": 1/16 * 1.5
-}
 
 class ScoreGenerator {
+    static durations = {
+        // whole notes
+        "w":  1,    // dotted notes
+        "h":  1/2,  "hd":  1/2  * 1.5, 
+        "q":  1/4,  "qd":  1/4  * 1.5, 
+        "8":  1/8,  "8d":  1/8  * 1.5,
+        "16": 1/16, "16d": 1/16 * 1.5
+    }
+    static key_signatues = [
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 
+        'C#', 'F#',
+        'Ab', 'Bb', 'Db', 'Eb', 'Gb'
+    ]
+    static time_signatures = [
+        "none",
+        "C",   '4/4',  '3/4', 
+        '2/4', '2/2',  '3/8', 
+        '3/2', '4/8',  '4/2', 
+        '6/8', '6/4',  '9/8', 
+        '9/4', '12/8', '12/4'
+    ]
+
     constructor(score) {
         this.container = document.querySelector("#pages")
         this.page_number = 1
         this.svg = null
 
+        this.durations       = ScoreGenerator.durations
+        this.key_signatues   = ScoreGenerator.key_signatues
+        this.time_signatures = ScoreGenerator.time_signatures
+
         this.score = score
+
+        // everything listed in settings exposed to the GUI to be changed
         this.settings = {
             title:       score.title,
             subtitle: score.subtitle,
@@ -38,11 +58,12 @@ class ScoreGenerator {
     }
     
     new_page(title=false) {
+        // create new page in HTML
         this.div = document.createElement("div")
-        this.div.className = "music"
-
+        this.div.className = "sheet-music-page"
         this.container.appendChild(this.div)
 
+        // create new renderer for the page
         this.renderer = new Renderer(this.div, Renderer.Backends.SVG)
         this.renderer.resize(this.width, this.height)
         this.context  = this.renderer.getContext()
@@ -53,10 +74,12 @@ class ScoreGenerator {
         // setup page object
         let title_margin = 0
         let title_visible = this.settings.title_space >= this.settings.min_title_space
+        
         if(title) {
             title_margin = title_visible? this.margin * .75: 0
             title_margin += this.title_space
         }
+
         this.page = {
             stave_x: this.margin, 
             stave_y: this.margin + title_margin, 
@@ -73,15 +96,14 @@ class ScoreGenerator {
         )
         this.page_number++
 
+        // change the font for the svg
+        let style = document.createElement("style")
+            style.innerText = "text {font-family: serif}"
+        this.svg.appendChild(style)
     }
 
-    download_pdf() {
+    download_pdf(a) {
         alert("not currently implimented")
-
-        // let doc = new jspdf.jsPDF()
-        // let svg_data = document.querySelector(".music > svg").innerHTML
-        // doc.addSvg(svg_data, 0, 0, 1000, 1414)
-        // doc.save()
     }
 
     download_svg(a) {
@@ -90,7 +112,7 @@ class ScoreGenerator {
     }
 
     generate() {
-        // scroll position is reset when deleting the existing sheet music from the page
+        // save scroll position (its reset upon deleting the old sheet music)
         let scrollX = window.pageXOffset || document.documentElement.scrollLeft
         let scrollY = window.pageYOffset || document.documentElement.scrollTop
 
@@ -107,26 +129,21 @@ class ScoreGenerator {
     }
 
     add_text() {
-        let svg = this.svg//document.querySelector("svg")
         if(this.settings.title_space >= this.settings.min_title_space) {
-            // add style
-            let style = document.createElement("style")
-                style.innerText = "text {font-family: serif}"
-
-            svg.appendChild(style)
-
-            // Add title 
+            // add title & subtitle
             let center_y = this.margin + this.title_space/2
-            this.text_element(this.settings.title,    svg, "50%", center_y, this.title_size)
-            this.text_element(this.settings.subtitle, svg, "50%", center_y + this.title_size, this.title_size/2)
+            this.text_element(this.settings.title,    this.svg, "50%", center_y,  this.title_size)
+            this.text_element(this.settings.subtitle, this.svg, "50%", center_y + this.title_size, this.title_size/2)
             
-            // corner text
-            let lines = this.settings.artist.split("\n")
+            // add author text in corner of title space
+            let lines       = this.settings.artist.split("\n")
             let line_height = this.title_size/2 + 3
-            let voffset = line_height * lines.length
+            let voffset     = line_height * lines.length
+
+            // add each line individually
             for(let i = 0; i < lines.length; i++) {
                 this.text_element(
-                    lines[i], svg, 
+                    lines[i], this.svg, 
                     (1 - this.settings.margin) * 100 + "%", 
                     this.margin*1.5 + this.title_space + this.title_size - voffset + line_height*i, 
                     this.title_size/2, 
@@ -135,6 +152,7 @@ class ScoreGenerator {
             }
         }
     }
+
     text_element(text, svg, x, y, size, iscorner=false) {
         var svg_ns = "http://www.w3.org/2000/svg";
         var new_text = document.createElementNS(svg_ns, "text")
@@ -143,6 +161,7 @@ class ScoreGenerator {
         new_text.setAttributeNS(null, "y", y)
         new_text.setAttributeNS(null, "font-size", size)
         
+        // set text align
         if(iscorner) {
             new_text.setAttributeNS(null, "text-anchor", "end")
         } else {
@@ -155,22 +174,26 @@ class ScoreGenerator {
     }
 
     setup_renderer() {
-        // size constants
+        // calculate sizes
         let settings_width = document.querySelector(".settings").offsetWidth
-
+        
+        // page
         this.width  = window.innerWidth - settings_width
         this.height = this.width * Math.SQRT2
         this.scale  = this.width / this.settings.font_size
 
+        // margins
         this.margin       = (this.width / this.scale) * parseFloat(this.settings.margin)
         this.inner_width  = this.width - 2 * (this.margin * this.scale) // undo scale stretch before its applied again in bar_width
         
+        // bars
         this.uniform_bar_width = (this.inner_width / this.settings.row_bars) / this.scale
         this.first_bar_width   = this.uniform_bar_width * (1 + parseFloat(this.settings.first_bar_grow))
 
         let remaining_width  = this.inner_width - this.first_bar_width * this.scale
         this.small_bar_width = (remaining_width / (this.settings.row_bars-1)) / this.scale
         
+        // staves & titles
         this.stave_height = (this.height * this.settings.stave_height) / this.scale
         this.stave_gap    = (this.height * this.settings.stave_gap) / this.scale
         this.title_space  = (this.settings.title_space * this.height) / this.scale
@@ -187,10 +210,12 @@ class ScoreGenerator {
 
         let treble_ind = 0
         let bass_ind   = 0
+
+        // loop through and draw each bar
         while(true) {
             if(treble_ind >= score.treble.length) break
             
-            // get this bar's set of notes
+            // get the notes in the next bar
             let treble   = this.next_bar_notes(score.treble, treble_ind)
             treble_ind   = treble.index
             treble_notes = this.decorate_bar(treble)
@@ -213,7 +238,7 @@ class ScoreGenerator {
     }
 
     next_bar_notes(voice, index) {
-        let note, type, beats = 0, notes = [], elements = []
+        let note, beats = 0, notes = [], elements = []
 
         // loop until the beats in a bar is filled
         while(beats < 1) {
@@ -226,7 +251,7 @@ class ScoreGenerator {
 
                 case "tie_group":
                     note.notes.forEach(note_head => {
-                        // add duration for each note of group, assumes group is valid length for the bar
+                        // add duration for each note of group, assumes group is within valid length for the bar
                         beats += this.note_duration(note_head)
                     })
                     break
@@ -244,11 +269,12 @@ class ScoreGenerator {
     }
 
     key_octave(key) {
-        // factor in that C is the start of an octave
+        // read octave number from the note name
         let keys = "ABCDEFG".split("")
         let octave = parseInt(key.split("/")[1])
         let note = key.split("/")[0].toUpperCase()
-
+        
+        // C is the start of an octave
         if(keys.indexOf(note) < keys.indexOf("C")) {
             octave--
         }
@@ -257,6 +283,7 @@ class ScoreGenerator {
 
     highest_octave(note) {
         let highest = 0
+        // keep track of the highest note in a chord
         note.keys.forEach(key => {
             if(this.key_octave(key) > highest) {
                 highest = this.key_octave(key)
@@ -266,6 +293,7 @@ class ScoreGenerator {
     }
 
     bar_is_bass_clef(voice) {
+        // keep track of the highest octave in the bar
         let highest = 0
         voice.notes.forEach(note => {
             switch(this.note_type(note)) {
@@ -284,13 +312,12 @@ class ScoreGenerator {
             }
 
         })
-        return highest <= 4 // if highest note is on lower half of piano, this is a bass bar
+        // if highest note is on lower half of piano, this bar has a bass clef
+        return highest <= 4
     }
 
     new_note(note, is_bass) {
-        if(is_bass) {
-            note.clef = "bass"
-        }
+        if(is_bass) note.clef = "bass"
         if(note.duration.endsWith("r")) {
             // center rests (if this note is a rest)
             note.keys = ["b/4"]
@@ -299,24 +326,27 @@ class ScoreGenerator {
 
         let vex_note = new StaveNote(note)
         if(note.duration.endsWith("d")) {
+            // add dot symbol if the note is dotted
             Vex.Flow.Dot.buildAndAttach([vex_note], {all: true})
         }
         return vex_note
     }
 
     flatten_groups(note, is_bass) {
+        // gives a list of individual notes, and decorates them with symbols
         let notes = []
         let elements = []
         
         switch (this.note_type(note)) {
             case "note": notes.push(this.new_note(note, is_bass)); break
             case "tie_group":
-                // add and tie each note
                 let prev_note = null
                 note.notes.forEach(note_head => {
+                    // add the note
                     let note_obj = this.new_note(note_head, is_bass)
                     notes.push(note_obj)
                     
+                    // tie it to the previous note
                     if (prev_note != null) {
                         this.tie_notes(prev_note, note_obj).forEach(tie => elements.push(tie))
                     }
@@ -327,58 +357,51 @@ class ScoreGenerator {
             case "tuplet":
                 let tuplet_notes = []
                 note.notes.forEach(note_head => {
+                    // add the note to the list
                     let note_obj = this.new_note(note_head, is_bass)
                     tuplet_notes.push(note_obj)
                     notes.push(note_obj)
                 })
 
-                // make beam for the notes 
-                // let beam = new Vex.Flow.Beam(tuplet_notes, true)
-                // elements.push(beam)
-
                 // make tuplet sumbol
                 let tuplet = new Vex.Flow.Tuplet(
-                    tuplet_notes, 
-                    {
-                        // beats_occupied: durations[note.duration] * this.settings.beats_per_bar,
+                    tuplet_notes, {
                         notes_occupied: 1/4,
-                        // notes_occupied: 3,
                         bracketed: true
                     }   
                 )
                 elements.push(tuplet)
-
                 break
         }
         return { notes, elements }
     }
 
     note_duration(note) {
-        return durations[note.duration.replace("r", "")]
+        return this.durations[note.duration.replace("r", "")]
     }
 
     decorate_bar(bar) {
-        // adds ties, beams and other symbols
+        // adds dynamic ties, beams and other symbols
         // converts MIDI notes into VexFlow notation format
-        let elements = [...bar.elements] // elements that need seperate rendering
 
+        let elements = [...bar.elements] // elements that need seperate rendering
         let vex_notes = []
         let is_bass = this.bar_is_bass_clef(bar)
         bar.notes.forEach(note => {
             let group = this.flatten_groups(note, is_bass)
 
-            group.notes .forEach(note => vex_notes.push(note))
-            group.elements.forEach(el => elements .push(el))
+            group.notes   .forEach(note => vex_notes.push(note))
+            group.elements.forEach(el   => elements .push(el))
         })
 
         // add contextual ties (split 1/4 note into 2 tied 8th notes if sourrdounded by 8th notes)
-        let context_ties = []
+        let context_tie_notes = []
         for(let i = 0; i < vex_notes.length; i++) {
             let note = vex_notes[i]
 
+            // work out if a tie is needed
             let not_on_edge = i > 0 && i < vex_notes.length - 1
             let is_quarter_note = note.duration == "q"
-            
             let eigth_left  = false
             let eigth_right = false
 
@@ -387,32 +410,33 @@ class ScoreGenerator {
                 eigth_left  = vex_notes[i-1].duration == "8"
                 eigth_right = vex_notes[i+1].duration == "8"
             }
+
             let is_samwiched = eigth_left && eigth_right
 
             if(not_on_edge && is_quarter_note && is_samwiched) {
                 // replace with two tied 8th notes
-
                 let start = this.new_note({
                     keys: note.keys,
                     duration: "8"
                 }, is_bass)
+
                 let end = this.new_note({
                     keys: note.keys,
                     duration: "8"
                 }, is_bass)
 
-                context_ties.push(start, end)
+                context_tie_notes.push(start, end)
 
                 this.tie_notes(start, end)
                     .forEach(tie => elements.push(tie))
 
             } else {
                 // leave note as is
-                context_ties.push(note)
+                context_tie_notes.push(note)
             }
 
         }
-        vex_notes = context_ties
+        vex_notes = context_tie_notes
 
         return {notes: vex_notes, elements}
     }
@@ -436,14 +460,15 @@ class ScoreGenerator {
     }
 
     new_bar(last_bar=false) {
-        // if the next bar will go over the page, make a new page
-        if(this.page.stave_y + this.stave_height >= this.height / this.scale - this.margin) {
-            if(!last_bar) {
-                this.new_page()
-            }
+        // if the next bar will go over the page, make a new one
+        let bar_bbox_bottom = this.page.stave_y + this.stave_height
+        let page_bottom     = this.height / this.scale - this.margin
+
+        if(bar_bbox_bottom >= page_bottom) {
+            if(!last_bar) this.new_page()
         }
 
-        // make a new stave in the correct position
+        // make new staves
         let width = this.page.bars_in_row == 0? this.first_bar_width: this.small_bar_width
         let stave      = new Stave(this.page.stave_x, this.page.stave_y, width)
         let bass_stave = new Stave(this.page.stave_x, this.page.stave_y + this.stave_gap, width)
@@ -454,7 +479,7 @@ class ScoreGenerator {
         let brace      = null
 
         if(this.page.bars_in_row == 0) {
-            // add decorations to start the row
+            // add decorations to start of row
             stave.addClef("treble")
                 .addKeySignature(this.settings.key)
 
@@ -472,8 +497,8 @@ class ScoreGenerator {
         this.page.stave_x += width
         this.page.bars_in_row++
         
+        // break to new row if needed
         if(this.page.bars_in_row >= this.settings.row_bars) {
-            // breaks to new row after certain number of bars
             this.page.stave_y += this.stave_height
             this.page.stave_x = this.margin
             this.page.bars_in_row = 0
@@ -488,21 +513,23 @@ class ScoreGenerator {
     }
 
     draw_bar(bar) {
-        // for drawing debug shapes:
+        // // for drawing debug shapes:
         // let rnd = this.renderer.getContext()
         // rnd.fillRect(25, this.height / this.scale - this.margin, 200, 5) // limit
         // rnd.fillRect(50, this.page.stave_y + this.stave_height, 20, 20)
 
-        for(let elt in bar) {
-            if(bar[elt]) {
-                bar[elt].setContext(this.context).draw()
+        for(let component in bar) {
+            if(bar[component]) {
+                bar[component].setContext(this.context).draw()
             }
         }
     }
 
     draw_voice(voice, notes, stave) {
-        voice.setStrict(false) // use non strict mode to allow incorrect beats ber bar to render tuplets
+        // use non strict mode to allow incorrect beats ber bar for rendering tuplets
+        voice.setStrict(false)
         voice.addTickables(notes.notes)
+        
         Vex.Flow.Formatter.FormatAndDraw(
             this.context, stave, notes.notes,
             {align_rests: false, auto_beam: true}

@@ -1,4 +1,4 @@
-const score = {
+const SCORE = {
     title:    "BRAND NEW WORLD",
     subtitle: "from One Piece",
     artist:   "D-51\nSymphoniac\nMagical Piano\nBlake Woolley",

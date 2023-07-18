@@ -21,7 +21,7 @@ class ScoreGenerator {
             artist:     score.artist,
             key:           score.key,
             time_signature: score.time_signature,
-            margin:               .1,
+            margin:              .10,
             stave_height:        .17,
             font_size:          1090,
             row_bars:              3,
@@ -160,9 +160,9 @@ class ScoreGenerator {
 
         this.width  = window.innerWidth - settings_width
         this.height = this.width * Math.SQRT2
-    
         this.scale        = this.width / this.settings.font_size
-        this.margin       = (this.width * this.settings.margin) / this.scale
+
+        this.margin       = this.width  / this.scale * parseFloat(this.settings.margin)
         this.inner_width  = this.width - 2 * (this.margin * this.scale) // undo scale stretch before its applied again in bar_width
         
         this.uniform_bar_width = (this.inner_width / this.settings.row_bars) / this.scale
@@ -437,7 +437,7 @@ class ScoreGenerator {
 
     new_bar(last_bar=false) {
         // if the next bar will go over the page, make a new page
-        if(this.page.stave_y - this.stave_height >= this.height - this.margin) {
+        if(this.page.stave_y - this.stave_height >= this.height - this.margin * this.scale) {
             if(!last_bar) {
                 this.new_page()
             }

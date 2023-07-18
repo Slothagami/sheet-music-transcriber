@@ -160,9 +160,9 @@ class ScoreGenerator {
 
         this.width  = window.innerWidth - settings_width
         this.height = this.width * Math.SQRT2
-        this.scale        = this.width / this.settings.font_size
+        this.scale  = this.width / this.settings.font_size
 
-        this.margin       = this.width  / this.scale * parseFloat(this.settings.margin)
+        this.margin       = (this.width / this.scale) * parseFloat(this.settings.margin)
         this.inner_width  = this.width - 2 * (this.margin * this.scale) // undo scale stretch before its applied again in bar_width
         
         this.uniform_bar_width = (this.inner_width / this.settings.row_bars) / this.scale
@@ -437,7 +437,7 @@ class ScoreGenerator {
 
     new_bar(last_bar=false) {
         // if the next bar will go over the page, make a new page
-        if(this.page.stave_y - this.stave_height >= this.height - this.margin * this.scale) {
+        if(this.page.stave_y - this.stave_height >= this.height / this.scale - this.margin) {
             if(!last_bar) {
                 this.new_page()
             }
@@ -488,6 +488,11 @@ class ScoreGenerator {
     }
 
     draw_bar(bar) {
+        // for drawing debug shapes:
+        // let rnd = this.renderer.getContext()
+        // rnd.fillRect(25, this.height *  - this.margin, 200, 5) // limit
+        // rnd.fillRect(50, this.page.stave_y, 20, 20)
+
         for(let elt in bar) {
             if(bar[elt]) {
                 bar[elt].setContext(this.context).draw()

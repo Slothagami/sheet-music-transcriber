@@ -437,7 +437,7 @@ class ScoreGenerator {
 
     new_bar(last_bar=false) {
         // if the next bar will go over the page, make a new page
-        if(this.page.stave_y - this.stave_height >= this.height / this.scale - this.margin) {
+        if(this.page.stave_y + this.stave_height >= this.height / this.scale - this.margin) {
             if(!last_bar) {
                 this.new_page()
             }
@@ -490,8 +490,8 @@ class ScoreGenerator {
     draw_bar(bar) {
         // for drawing debug shapes:
         // let rnd = this.renderer.getContext()
-        // rnd.fillRect(25, this.height *  - this.margin, 200, 5) // limit
-        // rnd.fillRect(50, this.page.stave_y, 20, 20)
+        // rnd.fillRect(25, this.height / this.scale - this.margin, 200, 5) // limit
+        // rnd.fillRect(50, this.page.stave_y + this.stave_height, 20, 20)
 
         for(let elt in bar) {
             if(bar[elt]) {

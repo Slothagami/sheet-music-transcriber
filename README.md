@@ -12,4 +12,3 @@
 
 - download (svg or pdf option)
   - convert to pdf
-- (bug) page breaks get added when screen is thinner (not independant of window size)

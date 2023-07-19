@@ -36,11 +36,11 @@ class ScoreGenerator {
 
         // everything listed in settings exposed to the GUI to be changed
         this.settings = {
-            title:       score.title,
-            subtitle: score.subtitle,
-            artist:     score.artist,
-            key:           score.key,
-            time_signature: score.time_signature,
+            title:       score.title || "",
+            subtitle: score.subtitle || "",
+            artist:     score.artist || "",
+            key:           score.key || "C",
+            time_signature: score.time_signature || "none",
             margin:              .10,
             stave_height:        .17,
             font_size:          1090,
@@ -529,7 +529,7 @@ class ScoreGenerator {
         // use non strict mode to allow incorrect beats ber bar for rendering tuplets
         voice.setStrict(false)
         voice.addTickables(notes.notes)
-        
+
         Vex.Flow.Formatter.FormatAndDraw(
             this.context, stave, notes.notes,
             {align_rests: false, auto_beam: true}

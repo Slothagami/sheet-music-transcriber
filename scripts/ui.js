@@ -31,7 +31,7 @@ function update_params() {
     }
     
     score.generate()
-    requestAnimationFrame(update_params)
+    // requestAnimationFrame(update_params)
 }
 
 

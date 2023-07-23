@@ -22,6 +22,21 @@ class ScoreGenerator {
         '6/8', '6/4',  '9/8', 
         '9/4', '12/8', '12/4'
     ]
+    static notes = `
+        A0 B0
+        C1 D1 E1 F1 G1 A1 B1
+        C2 D2 E2 F2 G2 A2 B2 
+        C3 D3 E3 F3 G3 A3 B3 
+        C4 D4 E4 F4 G4 A4 B4 
+        C5 D5 E5 F5 G5 A5 B5
+        C6 D6 E6 F6 G6 A6 B6 
+        C7 D7 E7 F7 G7 A7 B7 
+        C8
+    `   .trim()
+        .replaceAll("\n", " ")
+        .replaceAll("\t", "")
+        .replaceAll(/\s+/g, " ")
+        .split(" ")
 
     constructor(score) {
         this.container = document.querySelector("#pages")
@@ -31,6 +46,7 @@ class ScoreGenerator {
         this.durations       = ScoreGenerator.durations
         this.key_signatues   = ScoreGenerator.key_signatues
         this.time_signatures = ScoreGenerator.time_signatures
+        this.notes           = ScoreGenerator.notes
 
         this.score = score
 
@@ -222,7 +238,7 @@ class ScoreGenerator {
 
             let bass   = this.next_bar_notes(score.bass, bass_ind)
             bass_ind   = bass.index
-            bass_notes = this.decorate_bar(bass)
+            bass_notes = this.decorate_bar(bass, true)
 
             // render voice
             this.draw_bar(bar)
@@ -268,53 +284,6 @@ class ScoreGenerator {
         return "note"
     }
 
-    key_octave(key) {
-        // read octave number from the note name
-        let keys = "ABCDEFG".split("")
-        let octave = parseInt(key.split("/")[1])
-        let note = key.split("/")[0].toUpperCase()
-        
-        // C is the start of an octave
-        if(keys.indexOf(note) < keys.indexOf("C")) {
-            octave--
-        }
-        return octave
-    }
-
-    highest_octave(note) {
-        let highest = 0
-        // keep track of the highest note in a chord
-        note.keys.forEach(key => {
-            if(this.key_octave(key) > highest) {
-                highest = this.key_octave(key)
-            }
-        })
-        return highest
-    }
-
-    bar_is_bass_clef(voice) {
-        // keep track of the highest octave in the bar
-        let highest = 0
-        voice.notes.forEach(note => {
-            switch(this.note_type(note)) {
-                case "note":
-                    let octave = this.highest_octave(note)
-                    if(octave > highest) highest = octave
-                    break
-
-                case "tie_group":
-                case "tuplet":
-                    note.notes.forEach(note_head => {
-                        let octave = this.highest_octave(note_head)
-                        if(octave > highest) highest = octave
-                    })
-                    break
-            }
-
-        })
-        // if highest note is on lower half of piano, this bar has a bass clef
-        return highest <= 4
-    }
 
     new_note(note, is_bass) {
         if(is_bass) note.clef = "bass"
@@ -380,13 +349,12 @@ class ScoreGenerator {
         return this.durations[note.duration.replace("r", "")]
     }
 
-    decorate_bar(bar) {
+    decorate_bar(bar, is_bass=false) {
         // adds dynamic ties, beams and other symbols
         // converts MIDI notes into VexFlow notation format
 
         let elements = [...bar.elements] // elements that need seperate rendering
         let vex_notes = []
-        let is_bass = this.bar_is_bass_clef(bar)
         bar.notes.forEach(note => {
             let group = this.flatten_groups(note, is_bass)
 

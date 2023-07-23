@@ -6,6 +6,7 @@ const SCORE = {
         {keys: ["c/4"], duration: "q"},
     ],
     bass: [
-        {keys: ["c/3"], duration: "w"},
+        {keys: ["c/3"], duration: "h"},
+        {keys: ["c/3","c/4"], duration: "h"},
     ]
 }

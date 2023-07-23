@@ -368,8 +368,9 @@ class ScoreGenerator {
             let note = vex_notes[i]
 
             // work out if a tie is needed
+            console.log(note)
             let not_on_edge = i > 0 && i < vex_notes.length - 1
-            let is_quarter_note = note.duration == "q"
+            let is_quarter_note = note.duration == "q" && !note.noteType == "r"
             let eigth_left  = false
             let eigth_right = false
 

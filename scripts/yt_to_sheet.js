@@ -1,49 +1,58 @@
 //#region Object Setup
-var video  = document.querySelector("video")
-var canvas = document.createElement("canvas")
-var c 	   = canvas.getContext("2d", {willReadFrequently: true})
+
 
 // add vexflow libary, for displaying the sheet music after its generated
 //var script = document.createElement("script")
 //script.src = "https://cdn.jsdelivr.net/npm/vexflow/build/cjs/vexflow.js"
 
-canvas.width  = video.videoWidth
-canvas.height = 25
-canvas.style.position = "fixed"
-canvas.style.bottom   = 0
-canvas.style.right    = 0
+class VideoParser {
+	constructor () {
+		this.video  = document.querySelector("video")
+		this.canvas = document.createElement("canvas")
+		this.c 	    = this.canvas.getContext("2d", {willReadFrequently: true})
 
-document.body.appendChild(canvas)
+		this.canvas.width  = this.video.videoWidth
+		this.canvas.height = 25
+		this.canvas.style.position = "fixed"
+		this.canvas.style.bottom   = 0
+		this.canvas.style.right    = 0
+		
+		document.body.appendChild(this.canvas)
+
+		// constants
+		this.keywidth     = this.video.videoWidth / notes.length
+		this.min_keywidth = this.keywidth / 2
+	}
+
+}
+
 //#endregion
 //#region Constants
 const notes = `
-	A0 B0
-	C1 D1 E1 F1 G1 A1 B1
-	C2 D2 E2 F2 G2 A2 B2 
-	C3 D3 E3 F3 G3 A3 B3 
-	C4 D4 E4 F4 G4 A4 B4 
-	C5 D5 E5 F5 G5 A5 B5
-	C6 D6 E6 F6 G6 A6 B6 
-	C7 D7 E7 F7 G7 A7 B7 
-	C8
-`   .trim()
-	.replaceAll("\n", " ")
-	.replaceAll("\t", "")
-	.replaceAll("  ", " ")
-	.split(" ")
+			A0 B0
+			C1 D1 E1 F1 G1 A1 B1
+			C2 D2 E2 F2 G2 A2 B2 
+			C3 D3 E3 F3 G3 A3 B3 
+			C4 D4 E4 F4 G4 A4 B4 
+			C5 D5 E5 F5 G5 A5 B5
+			C6 D6 E6 F6 G6 A6 B6 
+			C7 D7 E7 F7 G7 A7 B7 
+			C8
+		`   .trim()
+			.replaceAll("\n", " ")
+			.replaceAll("\t", "")
+			.replaceAll("  ", " ")
+			.split(" ")
 
-const sharps = ["C", "D", "F", "G", "A"] // notes that have a sharp
+		const sharps = ["C", "D", "F", "G", "A"] // notes that have a sharp
+		const fps          = 24
 
-const keywidth     = video.videoWidth / notes.length
-const min_keywidth = keywidth / 2
-const fps          = 24
 //#endregion
 
 var window_y = 0
 let brightness_cutoff = .5
 let note_strength_cutoff = .7
 var resetting = false
-var clip_height = canvas.height
 var capturing_video = false
 
 function sharpen(note) {
@@ -59,7 +68,7 @@ function note_index(note) {
 
 var data
 function capture_data() {
-	data = c.getImageData(0, window_y, video.videoWidth, 1).data
+	data = parser.c.getImageData(0, window_y, parser.video.videoWidth, 1).data
 }
 
 function window_pixel(pos) {
@@ -80,7 +89,7 @@ function window_pixel(pos) {
 
 function note_strength(note, samples=20) {
 	note = note_index(note)
-	let columnWidth = video.videoWidth / notes.length
+	let columnWidth = parser.video.videoWidth / notes.length
 	let start = Math.floor(note * columnWidth)
 	let stop  = Math.floor((note + 1) * columnWidth - 1)
 
@@ -132,20 +141,20 @@ function draw_columns() {
 	// draw background for text
 	let note_name_y = 30
 	let note_name_height = 10
-	c.fillStyle = "#000000aa"
-	c.fillRect(0, note_name_y - note_name_height, canvas.width, note_name_height * 2)
+	parser.c.fillStyle = "#000000aa"
+	parser.c.fillRect(0, note_name_y - note_name_height, parser.canvas.width, note_name_height * 2)
 
 	for(let i = 0; i < notes.length; i++) {
-		c.strokeStyle = "#99999922"
-		c.lineWidth = .3
-		c.moveTo(keywidth * i, 10) // can't do to the top, because the program reads the canvas
-		c.lineTo(keywidth * i, canvas.width)
-		c.stroke()
+		parser.c.strokeStyle = "#99999922"
+		parser.c.lineWidth = .3
+		parser.c.moveTo(parser.keywidth * i, 10) // can't do to the top, because the program reads the canvas
+		parser.c.lineTo(parser.keywidth * i, parser.canvas.width)
+		parser.c.stroke()
 
-		c.fillStyle    = "white"
-		c.textAlign    = "center"
-		c.textBaseline = "middle"
-		c.fillText(notes[i], keywidth * i + min_keywidth, note_name_y)
+		parser.c.fillStyle    = "white"
+		parser.c.textAlign    = "center"
+		parser.c.textBaseline = "middle"
+		parser.c.fillText(notes[i], parser.keywidth * i + min_keywidth, note_name_y)
 	}
 }
 
@@ -164,9 +173,9 @@ function reset(e) {
 
 function record_video() {
 	capturing_video = true 
-	video.currentTime = 0
-	video.playbackRate = 3
-	video.play()
+	parser.video.currentTime = 0
+	parser.video.playbackRate = 3
+	parser.video.play()
 }
 
 function make_sheet_music(midi) {
@@ -178,10 +187,10 @@ var midi_data    = []
 var prev_notes   = []
 var active_notes = {}
 function update() {
-	c.clearRect(0, 0, canvas.width, canvas.height)
-	c.drawImage(video, 0, 0, video.videoWidth, clip_height, 0, 0, video.videoWidth, clip_height)
+	parser.c.clearRect(0, 0, parser.canvas.width, parser.canvas.height)
+	parser.c.drawImage(parser.video, 0, 0, parser.video.videoWidth, clip_height, 0, 0, parser.video.videoWidth, clip_height)
 	capture_data()
-	//console.log(video.currentTime) // in seconds
+	//console.log(parser.video.currentTime) // in seconds
 	//if(pressed_notes().length > 0) console.log(pressed_notes())
 	// draw_columns()
 
@@ -191,14 +200,14 @@ function update() {
 		// if note starts, record its start time
 		for(let note of cur_notes) {
 			if(!prev_notes.includes(note)) {
-				active_notes[note] = video.currentTime
+				active_notes[note] = parser.video.currentTime
 			}
 		}
 
 		// if a note ends calculate pressed time, and add to midi
 		for(let note of prev_notes) {
 			if(!cur_notes.includes(note)) {
-				note_duration = video.currentTime - active_notes[note]
+				note_duration = parser.video.currentTime - active_notes[note]
 
 				midi_data.push({
 					"note": note,
@@ -213,8 +222,8 @@ function update() {
 		prev_notes = cur_notes
 
 		// stop one second before the video ends, to avoid youtube auto next
-		if(video.currentTime >= video.duration - 3) {
-			video.pause()
+		if(parser.video.currentTime >= parser.video.duration - 3) {
+			parser.video.pause()
 			capturing_video = false
 			make_sheet_music(midi_data)
 		}
@@ -223,5 +232,8 @@ function update() {
 	if(!resetting) requestAnimationFrame(update)
 }
 
+parser = new VideoParser()
+var clip_height = parser.canvas.height
 requestAnimationFrame(update)
+record_video()
 window.addEventListener("keydown", reset)

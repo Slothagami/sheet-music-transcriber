@@ -51,5 +51,17 @@ const SCORE = [
         bass: [
             {keys: ["c/3"], duration: "wr"},
         ]
+    },{
+        treble: [
+            {keys: ["c/4"], duration: "qr"},
+            {type: "tie_group", notes: [
+                {keys: ["c/5"], duration: "q"},
+                {keys: ["c/5"], duration: "q"},
+                {keys: ["c/5"], duration: "q"},
+            ]}
+        ],
+        bass: [
+            {keys: ["c/3"], duration: "wr"},
+        ]
     },
-][3]
+][4]

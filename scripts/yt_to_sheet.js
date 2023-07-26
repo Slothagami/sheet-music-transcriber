@@ -1,6 +1,3 @@
-//#region Object Setup
-
-
 // add vexflow libary, for displaying the sheet music after its generated
 //var script = document.createElement("script")
 //script.src = "https://cdn.jsdelivr.net/npm/vexflow/build/cjs/vexflow.js"
@@ -26,27 +23,25 @@ class VideoParser {
 
 }
 
-//#endregion
 //#region Constants
 const notes = `
-			A0 B0
-			C1 D1 E1 F1 G1 A1 B1
-			C2 D2 E2 F2 G2 A2 B2 
-			C3 D3 E3 F3 G3 A3 B3 
-			C4 D4 E4 F4 G4 A4 B4 
-			C5 D5 E5 F5 G5 A5 B5
-			C6 D6 E6 F6 G6 A6 B6 
-			C7 D7 E7 F7 G7 A7 B7 
-			C8
-		`   .trim()
-			.replaceAll("\n", " ")
-			.replaceAll("\t", "")
-			.replaceAll("  ", " ")
-			.split(" ")
+	A0 B0
+	C1 D1 E1 F1 G1 A1 B1
+	C2 D2 E2 F2 G2 A2 B2 
+	C3 D3 E3 F3 G3 A3 B3 
+	C4 D4 E4 F4 G4 A4 B4 
+	C5 D5 E5 F5 G5 A5 B5
+	C6 D6 E6 F6 G6 A6 B6 
+	C7 D7 E7 F7 G7 A7 B7 
+	C8
+`   .trim()
+	.replaceAll("\n", " ")
+	.replaceAll("\t", "")
+	.replaceAll("  ", " ")
+	.split(" ")
 
-		const sharps = ["C", "D", "F", "G", "A"] // notes that have a sharp
-		const fps          = 24
-
+const sharps = ["C", "D", "F", "G", "A"] // notes that have a sharp
+const fps    = 24
 //#endregion
 
 var window_y = 0
@@ -54,14 +49,15 @@ let brightness_cutoff = .5
 let note_strength_cutoff = .7
 var resetting = false
 var capturing_video = false
+var video_speed = 2
 
+// Note Utility Functions
 function sharpen(note) {
 	return note.charAt(0) + "#" + note.charAt(1)
 }
 function flatten(note) {
 	return note.charAt(0) + "b" + note.charAt(1)
 }
-
 function note_index(note) {
 	return notes.indexOf(note)
 }
@@ -73,18 +69,14 @@ function capture_data() {
 
 function window_pixel(pos) {
 	// return a pixel brightness in the window
-	let pixel = pos => {
-		// arranged as RGBA, RGBA, ... for each pixel in order
-		pos *= 4
-	
-		let r = data[pos]
-		let g = data[pos + 1]
-		let b = data[pos + 2]
+	// arranged as [RGBA, RGBA, ...] for each pixel in order
+	pos *= 4
 
-		return Math.max(r, g, b) / 255 // normalize brightness
-	}
+	let r = data[pos]
+	let g = data[pos + 1]
+	let b = data[pos + 2]
 
-	return pixel(pos) // / max
+	return Math.max(r, g, b) / 255 // normalize brightness
 }
 
 function note_strength(note, samples=20) {
@@ -96,6 +88,8 @@ function note_strength(note, samples=20) {
 	let midpoint = (start + stop) / 2
 	let sum, lsum, rsum 
 	sum = lsum = rsum = 0	
+
+	// calculate the percentage of each side of the column that the note fills
 	for(let x = start; x < stop; x += columnWidth / samples) {
 		let sample = window_pixel(Math.floor(x)) > brightness_cutoff
 		sum += sample
@@ -113,6 +107,7 @@ function note_strength(note, samples=20) {
 }
 
 function pressed_notes() {
+	// get the strength of every note, list the ones that pass the threshold
 	pressed = []
 	for(let note of notes) {
 		let strength = note_strength(note)
@@ -122,14 +117,14 @@ function pressed_notes() {
 			// if the left side is dark, but the right side is filled
 			if(strength.left < note_strength_cutoff &&
 				strength.right > note_strength_cutoff) {
-				// note is the sharp
+				// note is sharp
 				pressed.push(sharpen(note))
 			}
 
 			// if the right side is dark, but the left is filled
 			if(strength.right < note_strength_cutoff &&
 				strength.left > note_strength_cutoff) {
-				// note is the flat
+				// note is flat
 				pressed.push(flatten(note))
 			}
 		}
@@ -138,6 +133,8 @@ function pressed_notes() {
 }
 
 function draw_columns() {
+	// (for debug) draw where the calculated column positions are
+
 	// draw background for text
 	let note_name_y = 30
 	let note_name_height = 10
@@ -159,9 +156,9 @@ function draw_columns() {
 }
 
 function reset(e) {
-	// clean up
+	// clean up events and variables
 	if(e.key == "r") {
-		document.body.removeChild(canvas)
+		document.body.removeChild(parser.canvas)
 		clearInterval(interval)
 		window.removeEventListener("keydown", reset)
 		resetting = true
@@ -172,9 +169,10 @@ function reset(e) {
 }
 
 function record_video() {
+	// start the video scan
 	capturing_video = true 
 	parser.video.currentTime = 0
-	parser.video.playbackRate = 3
+	parser.video.playbackRate = video_speed
 	parser.video.play()
 }
 
@@ -204,7 +202,7 @@ function update() {
 			}
 		}
 
-		// if a note ends calculate pressed time, and add to midi
+		// if a note ends calculate how long it was held, and add it to midi list
 		for(let note of prev_notes) {
 			if(!cur_notes.includes(note)) {
 				note_duration = parser.video.currentTime - active_notes[note]
@@ -221,7 +219,7 @@ function update() {
 
 		prev_notes = cur_notes
 
-		// stop one second before the video ends, to avoid youtube auto next
+		// stop a few seconds before the video ends, to avoid youtube auto next
 		if(parser.video.currentTime >= parser.video.duration - 3) {
 			parser.video.pause()
 			capturing_video = false

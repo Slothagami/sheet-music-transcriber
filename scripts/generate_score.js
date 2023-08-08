@@ -258,6 +258,7 @@ class ScoreGenerator {
 
         // loop until the beats in a bar is filled
         while(beats < 1) {
+            if(index == voice.length) break
             note = voice[index]
             switch (this.note_type(note)) {
                 case "note":
@@ -305,7 +306,7 @@ class ScoreGenerator {
         // gives a list of individual notes, and decorates them with symbols
         let notes = []
         let elements = []
-        
+
         switch (this.note_type(note)) {
             case "note": notes.push(this.new_note(note, is_bass)); break
             case "tie_group":

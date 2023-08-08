@@ -1,8 +1,9 @@
 window.addEventListener("load", init)
 
-var margin, size, score, elem = {}
+var margin, size, score, parser, elem = {}
 function init() {
-    score = new ScoreGenerator(SCORE)
+    parser = new MIDIReader(NOTES, 168)
+    score  = new ScoreGenerator(parser.score)
     
     // set the menus to reflect the score's default settings 
     for(let param in score.settings) {
@@ -31,7 +32,7 @@ function update_params() {
     }
     
     score.generate()
-    requestAnimationFrame(update_params)
+    // requestAnimationFrame(update_params)
 }
 
 

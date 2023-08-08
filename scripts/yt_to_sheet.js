@@ -178,7 +178,8 @@ function record_video() {
 
 function make_sheet_music(midi) {
 	// for testing in the other file
-	navigator.clipboard.writeText(JSON.stringify(midi))
+	let str = JSON.stringify(midi)
+	document.body.innerText = str
 }
 
 var midi_data    = []

@@ -1,9 +1,12 @@
 window.addEventListener("load", start)
 
-var notes
+var notes, title, subtitle
 function start() {
     navigator.clipboard.readText().then(data => {
-        notes = JSON.parse(data)
+        data = JSON.parse(data)
+        notes = data.midi
+        title = data.title
+        subtitle = data.subtitle
         init()
     })
 }
@@ -17,8 +20,8 @@ function init() {
     score  = new ScoreGenerator(parser.score)
 
     // load params
-    score.settings.title    = params.get("title") || ""
-    score.settings.subtitle = params.get("subtitle") || ""
+    score.settings.title    = title    || params.get("title")    || ""
+    score.settings.subtitle = subtitle || params.get("subtitle") || ""
     
     // set the menus to reflect the score's default settings 
     for(let param in score.settings) {

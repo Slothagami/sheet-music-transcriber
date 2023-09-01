@@ -177,7 +177,12 @@ function record_video() {
 }
 
 function make_sheet_music(midi) {
-	// for testing in the other file
+	// insert name and author in MIDI
+	let title = document.querySelector("#title > h1 > yt-formatted-string").innerText
+	let subtitle = document.querySelector("#text > a").innerText
+	midi = {title, subtitle, midi}
+
+	// copy the MIDI to be converted to sheet music
 	let str = JSON.stringify(midi)
 	btn.innerText = "Copy MIDI"
 	btn.onclick = () => {

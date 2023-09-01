@@ -58,14 +58,14 @@ class ScoreGenerator {
             key:           score.key || "C",
             time_signature: score.time_signature || "none",
             margin:              .10,
-            stave_height:        .17,
-            font_size:          1090,
-            row_bars:              3,
+            stave_height:        .15,
+            font_size:          1242,
+            row_bars:              4,
             beats_per_bar:         4,
             title_space:        .055,
             min_title_space:    .001,
             title_size:         .035,
-            stave_gap:           .07,
+            stave_gap:           .06,
             tie_scale:            .8,
             first_bar_grow:       .1,
         }
@@ -499,6 +499,7 @@ class ScoreGenerator {
         voice.setStrict(false)
         voice.addTickables(notes.notes)
 
+        if(notes.notes.length == 0) return
         Vex.Flow.Formatter.FormatAndDraw(
             this.context, stave, notes.notes,
             {align_rests: false, auto_beam: true}

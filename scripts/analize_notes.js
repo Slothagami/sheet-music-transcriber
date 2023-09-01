@@ -35,6 +35,42 @@ class MIDIReader {
         return notes.indexOf(note) >= notes.indexOf("C4")
     }
 
+    generate_clef(notes, max_beat) {
+        let voice = []
+        let last_pause = 0
+        let last_note_length = 0
+        for(let i = 0; i < max_beat; i++) {
+            notes[i] ??= []
+
+            // combine notes of the same length on the same beat
+            if(notes[i].length > 0) {
+                let keys = []
+                notes[i].forEach(key => {keys.push(this.to_proper_note(key.note))})
+                keys = [...new Set(keys)] // remove duplicates
+                // keys = keys.sort((a, b) => {
+                //     let notes = ScoreGenerator.notes
+                //     a = a.replace("/","")
+                //     b = b.replace("/","")
+                //     return notes.indexOf(a) < notes.indexOf(b)
+                // })
+                let note_length = notes[i][0].duration
+                voice.push({keys, duration: note_length})
+
+                // if there's a gap between notes, add a rest
+                let smallest_note = 16
+                let beat_diff = i/smallest_note - last_pause
+                if(beat_diff > last_note_length) { // needs to be greater than last note's duration
+                    voice.push({keys: "C/5", duration: this.length(beat_diff) + "r"})
+                }
+
+                // record last full space
+                last_pause = i/smallest_note
+                last_note_length = ScoreGenerator.durations[note_length]
+            }
+        }
+        return voice
+    }
+
     group_chords() {
         // group notes that start at the same time.
         let treble = [], bass = []
@@ -58,40 +94,8 @@ class MIDIReader {
 
         })
 
-        let last_pause = 0
-        let treb = [], bas = []
-        for(let i = 0; i < max_beat; i++) {
-            treble[i] ??= []
-            bass[i]   ??= []
-
-            // combine notes of the same length on the same beat
-            if(treble[i].length > 0) {
-                let keys_treb = []
-                treble[i].forEach(key => {keys_treb.push(this.to_proper_note(key.note))})
-                keys_treb = [...new Set(keys_treb)] // remove duplicates
-                treb.push({keys: keys_treb, duration: treble[i][0].duration})
-
-                // if there's a gap between notes, add a rest
-                let beat_diff = i - last_pause
-                if(beat_diff > 1) {
-                    console.log("rest")
-                }
-
-                // record last full space
-                last_pause = i
-            }
-
-            if(bass[i].length > 0) {
-                let keys_bass = []
-                bass[i].forEach(key => {keys_bass.push(this.to_proper_note(key.note))})
-                keys_bass = [...new Set(keys_bass)]
-                bas.push({keys: keys_bass, duration: bass[i][0].duration})
-            }
-        }
-        treble = treb
-        bass   = bas 
-        console.log(treble, bass)
-
+        treble = this.generate_clef(treble, max_beat)
+        bass   = this.generate_clef(bass, max_beat)
         return { treble, bass }
     }
 

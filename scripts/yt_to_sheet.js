@@ -49,7 +49,7 @@ let brightness_cutoff = .5
 let note_strength_cutoff = .7
 var resetting = false
 var capturing_video = false
-var video_speed = 2
+var video_speed = 1//2
 
 // Note Utility Functions
 function sharpen(note) {
@@ -179,12 +179,23 @@ function record_video() {
 function make_sheet_music(midi) {
 	// for testing in the other file
 	let str = JSON.stringify(midi)
-	document.body.innerText = str
+	btn.innerText = "Copy MIDI"
+	btn.onclick = () => {
+		navigator.clipboard.writeText(str)
+		btn.innerText = "Copied ✓"
+		setTimeout(() => {
+			btn.innerText = "Copy MIDI"
+		}, 3000);
+	}
 }
 
 var midi_data    = []
 var prev_notes   = []
 var active_notes = {}
+
+const ROUND_PRECISION = 10
+const round = (x, n=ROUND_PRECISION) => Math.round(x* 10**n)/10**n
+
 function update() {
 	parser.c.clearRect(0, 0, parser.canvas.width, parser.canvas.height)
 	parser.c.drawImage(parser.video, 0, 0, parser.video.videoWidth, clip_height, 0, 0, parser.video.videoWidth, clip_height)
@@ -210,8 +221,8 @@ function update() {
 
 				midi_data.push({
 					"note": note,
-					"start_time": active_notes[note],
-					"duration": note_duration
+					"start_time": round(active_notes[note]),
+					"duration": round(note_duration)
 				})
 
 				delete active_notes[note]
@@ -231,8 +242,47 @@ function update() {
 	if(!resetting) requestAnimationFrame(update)
 }
 
-parser = new VideoParser()
-var clip_height = parser.canvas.height
-requestAnimationFrame(update)
-record_video()
-window.addEventListener("keydown", reset)
+var btn
+function add_button() {
+	let css = `
+		#sheet-music-button:hover {
+			background: linear-gradient(45deg, #e52d2799, #8e191c99);
+		}
+		#sheet-music-button {
+			/*background-color: #b31217;*/
+			background: linear-gradient(45deg, #e52d27, #8e191c);
+			padding: .75em 1.4em;
+			border-radius: 2em;
+			margin-left: 1.5em;
+			font-weight: 410;
+			font-family: "Roboto", "Arial", sans-serif;
+			font-size: 14px;
+			text-wrap: nowrap;
+		}
+	`
+
+	let style = document.createElement("style")
+		style.innerHTML = css
+	document.head.appendChild(style)
+
+	btn = document.createElement("div")
+	btn.id = "sheet-music-button"
+	btn.innerText = "Sheet Music"
+
+	btn.onclick = generate_sheet
+
+    let panel = document.querySelector("#owner")
+		panel.appendChild(btn)
+}
+
+var clip_height
+function generate_sheet() {
+	btn.innerText = "Scanning Video..."
+	parser = new VideoParser()
+	clip_height = parser.canvas.height
+	requestAnimationFrame(update)
+	record_video()
+	window.addEventListener("keydown", reset)
+}
+
+add_button()

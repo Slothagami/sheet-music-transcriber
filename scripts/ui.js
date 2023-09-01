@@ -1,9 +1,24 @@
-window.addEventListener("load", init)
+window.addEventListener("load", start)
+
+var notes
+function start() {
+    navigator.clipboard.readText().then(data => {
+        notes = JSON.parse(data)
+        init()
+    })
+}
 
 var margin, size, score, parser, elem = {}
+var params = new URLSearchParams(location.search)
 function init() {
-    parser = new MIDIReader(NOTES, 168)
+    
+
+    parser = new MIDIReader(notes, 168)
     score  = new ScoreGenerator(parser.score)
+
+    // load params
+    score.settings.title    = params.get("title") || ""
+    score.settings.subtitle = params.get("subtitle") || ""
     
     // set the menus to reflect the score's default settings 
     for(let param in score.settings) {
@@ -23,6 +38,11 @@ function init() {
     set_button("#svg-button", score.download_svg)
 
     requestAnimationFrame(update_params)
+
+    // update the display after a change
+    document.querySelectorAll("select, input").forEach(el => {
+        el.addEventListener("change", update_params)
+    })
 }
 
 function update_params() {

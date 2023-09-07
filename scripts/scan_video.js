@@ -23,36 +23,39 @@ class VideoParser {
 
 }
 
+function parse_note_list(lst) {
+	return lst.trim()
+			.replaceAll("\n", " ")
+			.replaceAll("\t", "")
+			.replaceAll("  ", " ")
+			.split(" ")
+}
+
 //#region Constants
-// const notes = `
-// 	A0 B0
-// 	C1 D1 E1 F1 G1 A1 B1
-// 	C2 D2 E2 F2 G2 A2 B2 
-// 	C3 D3 E3 F3 G3 A3 B3 
-// 	C4 D4 E4 F4 G4 A4 B4 
-// 	C5 D5 E5 F5 G5 A5 B5
-// 	C6 D6 E6 F6 G6 A6 B6 
-// 	C7 D7 E7 F7
-// `   .trim()
-// 	.replaceAll("\n", " ")
-// 	.replaceAll("\t", "")
-// 	.replaceAll("  ", " ")
-// 	.split(" ")
-const notes = `
-	A0 B0
-	C1 D1 E1 F1 G1 A1 B1
-	C2 D2 E2 F2 G2 A2 B2 
-	C3 D3 E3 F3 G3 A3 B3 
-	C4 D4 E4 F4 G4 A4 B4 
-	C5 D5 E5 F5 G5 A5 B5
-	C6 D6 E6 F6 G6 A6 B6 
-	C7 D7 E7 F7 G7 A7 B7 
-	C8
-`   .trim()
-	.replaceAll("\n", " ")
-	.replaceAll("\t", "")
-	.replaceAll("  ", " ")
-	.split(" ")
+const notes_lists = {
+	"A0-F7": parse_note_list(`
+		A0 B0
+		C1 D1 E1 F1 G1 A1 B1
+		C2 D2 E2 F2 G2 A2 B2 
+		C3 D3 E3 F3 G3 A3 B3 
+		C4 D4 E4 F4 G4 A4 B4 
+		C5 D5 E5 F5 G5 A5 B5
+		C6 D6 E6 F6 G6 A6 B6 
+		C7 D7 E7 F7
+	`),
+	"A0-C8": parse_note_list(`
+		A0 B0
+		C1 D1 E1 F1 G1 A1 B1
+		C2 D2 E2 F2 G2 A2 B2 
+		C3 D3 E3 F3 G3 A3 B3 
+		C4 D4 E4 F4 G4 A4 B4 
+		C5 D5 E5 F5 G5 A5 B5
+		C6 D6 E6 F6 G6 A6 B6 
+		C7 D7 E7 F7 G7 A7 B7 
+		C8
+	`)
+}
+var notes = notes_lists["A0-C8"]
 
 const sharps = ["C", "D", "F", "G", "A"] // notes that have a sharp
 const fps    = 24
@@ -280,7 +283,7 @@ function update() {
 
 var btn
 function add_button() {
-	let css = `
+	add_style(`
 		#sheet-music-button:hover {
 			background: linear-gradient(45deg, #e52d2799, #8e191c99);
 		}
@@ -295,11 +298,7 @@ function add_button() {
 			font-size: 14px;
 			text-wrap: nowrap;
 		}
-	`
-
-	let style = document.createElement("style")
-		style.innerHTML = css
-	document.head.appendChild(style)
+	`)
 
 	btn = document.createElement("div")
 	btn.id = "sheet-music-button"
@@ -311,14 +310,134 @@ function add_button() {
 		panel.appendChild(btn)
 }
 
+function add_style(css) {
+	let style = document.createElement("style")
+		style.innerHTML = css
+	document.head.appendChild(style)
+}
+
 var clip_height
 function generate_sheet() {
-	btn.innerText = "Scanning Video..."
-	parser = new VideoParser()
-	clip_height = parser.canvas.height
-	requestAnimationFrame(update)
-	record_video()
-	window.addEventListener("keydown", reset)
+	add_style(`
+		#generate-settings-menu {
+			position: fixed;
+			inset: 50% 50%;
+			padding: 2em;
+			transform: translate(-50%, -50%);
+
+			background-color: #252525;
+			color: white;
+			text-align: center;
+
+			width: 30%;
+    		height: 40%;
+
+			font-size: 10pt;
+			border-radius: 1em;
+		}
+
+		.settings-row {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+
+			padding-top: 1em;
+		}
+
+		#generate-settings-menu input, #generate-settings-menu select {
+			background-color: #101010;
+			border: none;
+			outline: none;
+			color: white;
+			padding: .5em;
+			width: 30%;
+		}
+
+		#start-btn {
+			width: 100%;
+			background: linear-gradient(45deg, #e52d27, #8e191c);
+			border-radius: 2em;
+			margin-top: 1.5em;
+			padding: .75em 1.4em;
+			box-sizing: border-box;
+
+			font-weight: 410;
+			font-family: "Roboto", "Arial", sans-serif;
+			font-size: 14px;
+			text-wrap: nowrap;
+		}
+
+		#start-btn:hover {
+			background: linear-gradient(45deg, #e52d2799, #8e191c99);
+		}
+
+		#settings-background {
+			background-color: #00000080;
+			width: 100%;
+			height: 100%;
+			position: fixed;
+		}
+	`)
+
+	// settings menu popup
+	let background = document.createElement("div")
+		background.id = "settings-background"
+
+	let menu = document.createElement("div")
+		menu.id = "generate-settings-menu"
+		menu.innerHTML = `
+			<h2>Transcribe Settings</h2>
+			<br />
+			<div class="settings-row">
+				<p> note brightness </p>
+				<input type="number" value="0.5" min="0" max="1" step=".05" id="brightness-cutoff" />
+			</div>
+			<div class="settings-row">
+				<p> notes on screen </p>
+				<select id="keys-visible" value="A0-C8">
+					<option value="A0-C8">A0-C8</option>
+					<option value="A0-C8">A0-F7</option>
+				</select>
+			</div>
+			<div class="settings-row">
+				<p> video speed </p>
+				<input type="number" value="1" min="0" max="4" step=".1" id="video-speed" />
+			</div>
+
+			<div id="start-btn"> Start </div>
+		`
+	background.appendChild(menu)
+	document.body.appendChild(background)
+
+	// define events
+	let speed = document.getElementById("video-speed")
+	let start = document.getElementById("start-btn")
+	let keys_visible = document.getElementById("keys-visible")
+	let brightness   = document.getElementById("brightness-cutoff")
+
+	speed.addEventListener("change", () => {
+		video_speed = parseFloat(speed.value)
+	})
+	brightness.addEventListener("change", () => {
+		brightness_cutoff = parseFloat(brightness.value)
+	})
+	keys_visible.addEventListener("change", () => {
+		notes = notes_lists[keys_visible.value]
+	})
+
+	start.addEventListener("click", () => {
+		document.body.removeChild(background)
+
+		// scan the video
+		btn.innerText = "Scanning Video..."
+		parser = new VideoParser()
+		clip_height = parser.canvas.height
+		requestAnimationFrame(update)
+		record_video()
+		window.addEventListener("keydown", reset)
+	})
+
 }
 
 add_button()

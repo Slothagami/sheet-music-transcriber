@@ -1,4 +1,4 @@
-// window.addEventListener("load", start)
+window.addEventListener("load", start)
 
 var notes, title, subtitle, bpm, data
 function start() {
@@ -10,6 +10,7 @@ function start() {
 
     //     init()
     // })
+    data = prompt("Paste MIDI Data")
     data = JSON.parse(data)
     notes = data.midi
     title = data.title
@@ -110,7 +111,7 @@ function init() {
 
     // load params
     score.settings.title    = title    || params.get("title")    || ""
-    score.settings.subtitle = subtitle || params.get("subtitle") || ""
+    score.settings.artist   = subtitle || params.get("subtitle") || ""
     
     // set the menus to reflect the score's default settings 
     for(let param in score.settings) {

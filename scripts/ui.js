@@ -106,6 +106,7 @@ var params = new URLSearchParams(location.search)
 function init() {
     // parser = new MIDIReader(notes, 168)
     bpm = suggest_bpm()
+    bpm = 80
     parser = new MIDIReader(notes, bpm)
     score  = new ScoreGenerator(parser.score)
 

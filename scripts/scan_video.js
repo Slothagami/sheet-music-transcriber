@@ -2,6 +2,8 @@
 //var script = document.createElement("script")
 //script.src = "https://cdn.jsdelivr.net/npm/vexflow/build/cjs/vexflow.js"
 
+let params = location.search // contains video ID
+
 class VideoParser {
 	constructor () {
 		this.video  = document.querySelector("video")
@@ -241,7 +243,7 @@ function update() {
 	capture_data()
 	//console.log(parser.video.currentTime) // in seconds
 	//if(pressed_notes().length > 0) console.log(pressed_notes())
-	// draw_columns()
+	draw_columns()
 
 	if (capturing_video) {
 		let cur_notes = pressed_notes()
@@ -283,6 +285,17 @@ function update() {
 
 var btn
 function add_button() {
+	// monitor video id to reset the button if the video changes
+	setInterval(() => {
+		if(location.search != params) {
+			// reset button
+			btn.innerText = "Sheet Music"
+			btn.onclick = generate_sheet
+			midi_data = []
+			params = location.search
+		}
+	}, 5000)
+	
 	add_style(`
 		#sheet-music-button:hover {
 			background: linear-gradient(45deg, #e52d2799, #8e191c99);

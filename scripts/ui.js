@@ -20,17 +20,6 @@ function start() {
 }
 
 function suggest_bpm() {
-    // let counts = {}
-    // notes.forEach(note => {
-    //     let bpm = Math.round(4/note.duration)
-
-    //     if(bpm >= 30) {
-    //         counts[bpm] ??= 0
-    //         counts[bpm]++
-    //     }
-    // })
-    // return counts
-
     let last_time = notes[0].start_time
     let gap_total = 0
     for(let i = 1; i < notes.length; i++) {
@@ -39,7 +28,8 @@ function suggest_bpm() {
         last_time = notes[i].start_time
     }
     let avg_gap = gap_total / notes.length
-    return 60 / (avg_gap * 4)
+    let n_val = params.get("n") || 3
+    return 60 / (avg_gap * 2**n_val)
 }
 
 //#region verify sound
@@ -81,7 +71,14 @@ function verify_sound() {
     audioCtx = new(window.AudioContext || window.webkitAudioContext)()
 
     notes.forEach(note => {
-        setTimeout(() => {play_note(note.note, note.duration*1000)}, note.start_time * 1000)
+        setTimeout(() => {
+            play_note(note.note, note.duration*1000)
+
+            // let bar = Math.round(parser.beat(note.start_time)/16)
+            // let page = Math.round(bar / (4*5))
+            // bar -= 4*5*page
+            // console.log(page, bar)
+        }, note.start_time * 1000)
     })
 }
 function play_note(note, duration) {

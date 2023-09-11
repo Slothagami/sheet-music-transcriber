@@ -138,6 +138,8 @@ function note_strength(note, samples=20) {
 function pressed_notes() {
 	// get the strength of every note, list the ones that pass the threshold
 	pressed = []
+	let prev_sharp_strength = 0
+	let prev_sharp_ind = -1
 	for(let note of notes) {
 		let strength = note_strength(note)
 		if(strength.total > note_strength_cutoff) {
@@ -148,16 +150,33 @@ function pressed_notes() {
 				strength.right > note_strength_cutoff) {
 				// note is sharp
 				pressed.push(sharpen(note))
+				prev_sharp_strength = strength.right
+				prev_sharp_ind = pressed.length
 			}
 
 			// if the right side is dark, but the left is filled
 			if(strength.right < note_strength_cutoff &&
 				strength.left > note_strength_cutoff) {
-				// note is flat
-				pressed.push(flatten(note))
+				
+				// if the previous sharp went off, compare the strengths of each
+				if(prev_sharp_strength > strength.left) {
+					// don't add the note
+				} else {
+					// note is flat
+					pressed.push(flatten(note))
+
+					// remove the sharp before
+					pressed.splice(prev_sharp_ind, 1)
+				}
+
+				// reset for next note
+				prev_sharp_strength = 0
+				prev_sharp_ind = -1
 			}
 		}
 	}
+
+	// TODO: remove double ups for sharps the same as flats (pick highest strength one)
 	return pressed
 }
 

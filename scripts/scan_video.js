@@ -166,7 +166,7 @@ function pressed_notes() {
 					pressed.push(flatten(note))
 
 					// remove the sharp before
-					pressed.splice(prev_sharp_ind, 1)
+					if(prev_sharp_ind != -1) pressed.splice(prev_sharp_ind, 1)
 				}
 
 				// reset for next note
@@ -235,7 +235,7 @@ function reset(e) {
 function record_video() {
 	// start the video scan
 	capturing_video = true 
-	parser.video.currentTime = 0
+	if(start_at_start) parser.video.currentTime = 0
 	parser.video.playbackRate = video_speed
 	parser.video.play()
 }
@@ -268,9 +268,8 @@ const round = (x, n=ROUND_PRECISION) => Math.round(x* 10**n)/10**n
 function update() {
 	parser.c.clearRect(0, 0, parser.canvas.width, parser.canvas.height)
 	parser.c.drawImage(parser.video, 0, 0, parser.video.videoWidth, clip_height, 0, 0, parser.video.videoWidth, clip_height)
+	
 	capture_data()
-	//console.log(parser.video.currentTime) // in seconds
-	//if(pressed_notes().length > 0) console.log(pressed_notes())
 	draw_columns()
 
 	if (capturing_video) {
@@ -303,6 +302,12 @@ function update() {
 		// stop a few seconds before the video ends, to avoid youtube auto next
 		if(parser.video.currentTime >= parser.video.duration - 3) {
 			parser.video.pause()
+			capturing_video = false
+			make_sheet_music(midi_data)
+		}
+
+		// stop if video is paused
+		if(parser.video.paused && finish_on_pause) {
 			capturing_video = false
 			make_sheet_music(midi_data)
 		}
@@ -357,7 +362,7 @@ function add_style(css) {
 	document.head.appendChild(style)
 }
 
-var clip_height
+var clip_height, start_at_start = true, finish_on_pause = true
 function generate_sheet() {
 	add_style(`
 		#generate-settings-menu {
@@ -386,7 +391,7 @@ function generate_sheet() {
 			padding-top: 1em;
 		}
 
-		#generate-settings-menu input, #generate-settings-menu select {
+		#generate-settings-menu input[type=number], #generate-settings-menu select {
 			background-color: #101010;
 			border: none;
 			outline: none;
@@ -430,23 +435,30 @@ function generate_sheet() {
 		menu.innerHTML = `
 			<h2>Transcribe Settings</h2>
 			<br />
+
 			<div class="settings-row">
-				<p> note brightness </p>
-				<input type="number" value="0.5" min="0" max="1" step=".05" id="brightness-cutoff" />
+				<p> start from start </p>
+				<input type="checkbox" id="start-at-start" checked />
 			</div>
 			<div class="settings-row">
+				<p> stop recording on pause </p>
+				<input type="checkbox" id="end-on-pause" checked />
+			</div>
+
+			<div class="settings-row">
 				<p> notes on screen </p>
-				<select id="keys-visible" value="A0-C8">
-					<option value="A0-C8">A0-C8</option>
-					<option value="A0-C8">A0-F7</option>
-					<option value="A0-D7">A0-D7</option>
-				</select>
+				<select id="keys-visible" value="A0-C8"></select>
 			</div>
 			<div class="settings-row">
 				<p> video speed </p>
-				<input type="number" value="1" min="0" max="4" step=".1" id="video-speed" />
+				<input type="number" value="1" min="1" max="2" step=".1" id="video-speed" />
 			</div>
 
+			<div class="settings-row">
+				<p> note brightness </p>
+				<input type="range" value="0.5" min="0" max="1" step=".05" id="brightness-cutoff" />
+			</div>
+			
 			<div id="start-btn"> Start </div>
 		`
 	background.appendChild(menu)
@@ -457,6 +469,8 @@ function generate_sheet() {
 	let start = document.getElementById("start-btn")
 	let keys_visible = document.getElementById("keys-visible")
 	let brightness   = document.getElementById("brightness-cutoff")
+	let start_at     = document.getElementById("start-at-start")
+	let end_on       = document.getElementById("end-on-pause")
 
 	speed.addEventListener("change", () => {
 		video_speed = parseFloat(speed.value)
@@ -467,6 +481,22 @@ function generate_sheet() {
 	keys_visible.addEventListener("change", () => {
 		notes = notes_lists[keys_visible.value]
 	})
+	start_at.addEventListener("change", () => {
+		start_at_start = start_at.checked
+	})
+	end_on.addEventListener("change", () => {
+		finish_on_pause = end_on.checked
+	})
+
+	// add options for key ranges
+	Object.keys(notes_lists).forEach(range => {
+		let option = document.createElement("option")
+			option.innerText = range 
+			option.value = range 
+
+		keys_visible.appendChild(option)
+	})
+
 
 	start.addEventListener("click", () => {
 		document.body.removeChild(background)

@@ -8,8 +8,8 @@ class MIDIReader {
 
     beat(time) {
         // round time to nearest beat
-        time = Math.round(time*this.bpm)/this.bpm
-        return Math.round(time / this.beat_length)
+        let sixteenth = this.beat_length / 4
+        return Math.round(time / sixteenth)
     }
 
     length(time) {

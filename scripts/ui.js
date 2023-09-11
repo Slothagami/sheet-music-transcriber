@@ -105,14 +105,14 @@ var margin, size, score, parser, elem = {}
 var params = new URLSearchParams(location.search)
 function init() {
     // parser = new MIDIReader(notes, 168)
-    bpm = suggest_bpm()
-    bpm = 80
+    bpm = params.get("bpm") || suggest_bpm() 
     parser = new MIDIReader(notes, bpm)
     score  = new ScoreGenerator(parser.score)
 
     // load params
     score.settings.title    = title    || params.get("title")    || ""
     score.settings.artist   = subtitle || params.get("subtitle") || ""
+    
     
     // set the menus to reflect the score's default settings 
     for(let param in score.settings) {

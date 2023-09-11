@@ -176,7 +176,6 @@ function pressed_notes() {
 		}
 	}
 
-	// TODO: remove double ups for sharps the same as flats (pick highest strength one)
 	return pressed
 }
 

@@ -144,6 +144,7 @@ function update_params() {
     }
     
     score.generate()
+    
     // requestAnimationFrame(update_params)
 }
 

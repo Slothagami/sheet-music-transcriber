@@ -1,16 +1,9 @@
 window.addEventListener("load", start)
 
-var notes, title, subtitle, bpm, data
+var notes, title, subtitle, bpm, data, subdevision = 3
 function start() {
-    // navigator.clipboard.readText().then(data => {
-    //     data = JSON.parse(data)
-    //     notes = data.midi
-    //     title = data.title
-    //     subtitle = data.subtitle
-
-    //     init()
-    // })
     data = prompt("Paste MIDI Data")
+    subdevision = Math.log2(parseInt(prompt("Maximum note subdevision (4, 8, 16, etc)", 8)))
     data = JSON.parse(data)
     notes = data.midi
     title = data.title
@@ -28,7 +21,7 @@ function suggest_bpm() {
         last_time = notes[i].start_time
     }
     let avg_gap = gap_total / notes.length
-    let n_val = params.get("n") || 3
+    let n_val = subdevision || params.get("n") || 3
     return 60 / (avg_gap * 2**n_val)
 }
 
@@ -144,7 +137,7 @@ function update_params() {
     }
     
     score.generate()
-    
+
     // requestAnimationFrame(update_params)
 }
 
